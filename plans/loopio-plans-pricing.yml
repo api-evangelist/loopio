@@ -1,0 +1,32 @@
+generated: '2026-08-25'
+method: searched
+source: https://loopio.com/pricing/
+plan_count: 0
+self_serve_signup: false
+public_prices: false
+currency: null
+note: >-
+  Loopio publishes a pricing page at https://loopio.com/pricing/ but no machine-readable or
+  publicly-listed prices: the product is sold enterprise-style through a demo request and a
+  sales conversation, and third-party breakdowns describe tiered packages quoted per customer.
+  There is no self-serve sign-up — the entry point is a demo form at
+  https://learn.loopio.com/rfp-response-software/ (HTTP 200) — and no separately-priced API
+  plan or API metering: API access is created by a Loopio Admin inside an existing subscription
+  under Admin > Integrations > For Developers, at no separately published cost.
+  plan_count is an honest 0: the tiers exist, the prices are not published.
+probe:
+- url: https://loopio.com/pricing/
+  status: 202
+  finding: >-
+    Sucuri sgcaptcha robot-challenge interstitial. The page demonstrably exists (it is indexed
+    and linked as "Pricing & Plans for Loopio RFP Response Software") but its body cannot be
+    read by an automated client, so no tier names or prices are recorded here rather than
+    guessed.
+- url: https://learn.loopio.com/rfp-response-software/
+  status: 200
+  finding: demo-request landing page — the only public path to an account
+api_access:
+  gating: included with a Loopio subscription; App creation is admin-only
+  metered: false
+  published_quota: null
+  source: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api

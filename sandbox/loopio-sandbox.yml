@@ -1,0 +1,53 @@
+generated: '2026-08-25'
+method: searched
+source: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+self_serve: false
+public_console: false
+test_environment:
+  name: int01 test instance
+  host: https://api.int01.loopio.com
+  provisioning: Provisioned by Loopio; not self-serve and not obtainable from the public site.
+  credentials: >-
+    Separate credentials are required — the Getting Started guide states "If you've been given
+    int01 testing instances, then a separate API key and credentials need to be created within
+    those environments." Credentials from production do not work against int01, and vice versa.
+  quote: >-
+    "Disclamer: If you've been given int01 testing instances, then a separate API key and
+    credentials need to be created within those environments. Use api.int01.loopio.com as host."
+    (verbatim from the Getting Started guide, including the provider's own typo)
+mock_server:
+  url: https://stoplight.io/mocks/loopio/loopio-api/84330
+  platform: Stoplight Prism
+  anonymous: false
+  probe:
+    url: https://stoplight.io/mocks/loopio/loopio-api/84330/stacks
+    status: 401
+    body: >-
+      Prism UNAUTHORIZED — "Your request does not fullfil the security requirements and no HTTP
+      unauthorized response was found in the spec"
+  note: >-
+    The Stoplight project exposes a Prism mock, but it enforces the spec's OAuth2 security
+    scheme, so it is not an anonymous try-it-out surface. It is usable by anyone holding any
+    bearer value the mock accepts, but it will not answer an unauthenticated agent.
+test_data:
+  test_keys: false
+  test_mode_prefix: null
+  magic_identifiers: []
+  time_simulation: false
+  fixtures: false
+  note: >-
+    Loopio publishes no test cards, magic identifiers, seeded fixtures, test clocks or key
+    prefixes. There is no test-vs-live key distinction — separation is by environment host, not
+    by credential prefix.
+gaps:
+- No self-serve developer sandbox. An integrator cannot obtain a working Loopio API credential
+  without an existing Loopio subscription and an Admin who creates the App.
+- No public API console or "try it" surface that answers anonymously.
+pointer:
+  emitted: false
+  reason: >-
+    No Sandbox pointer is wired into apis.yml. The int01 environment is real and documented but
+    is provisioned by Loopio to existing customers only, and the Stoplight mock refuses
+    anonymous calls, so there is no sandbox or console a developer can reach from the public
+    site. Emitting the pointer would credit Loopio with a self-serve trial surface it does not
+    offer.

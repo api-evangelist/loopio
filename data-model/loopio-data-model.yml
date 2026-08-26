@@ -1,0 +1,505 @@
+generated: '2026-08-25'
+method: derived
+source: openapi/loopio-openapi.yaml
+notes:
+- Derived from $ref links and id-suffixed fields in the 72 component schemas of the Loopio Public API v2 OpenAPI.
+- Identifiers are unprefixed integers throughout — there is no Stripe-style typed id prefix, so an id is only meaningful
+  alongside its collection.
+- 'The graph has two roots: the Library (reusable answer content) and Projects (a specific RFP/questionnaire response).
+  Merge Variables, Custom Project Fields, Tags, Files and Users hang off both.'
+roots:
+- LibraryEntry
+- Project
+core_entities:
+- LibraryEntry
+- Project
+- ProjectWide
+- Section
+- SubSection
+- Entry
+- User
+- Team
+- Tag
+- Stack
+- File
+- MergeVariable
+- CustomProjectField
+- ComplianceSet
+- WebhookSubscription
+- ProjectTemplate
+- UserRole
+- Category
+- SubCategory
+- Question
+- Answer
+- Comment
+entity_count: 72
+entities:
+- entity: Answer
+  fields: 2
+  relationships:
+  - type: has_many
+    target: Footnote
+    via: footnotes
+- entity: Category
+  fields: 4
+  identifier_fields:
+  - id
+  - stackID
+  relationships:
+  - type: has_many
+    target: SubCategory
+    via: subCategories
+- entity: Comment
+  fields: 5
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_one
+    target: ReferenceLabel
+    via: creator
+- entity: ComplianceOption
+  fields: 1
+  required:
+  - label
+- entity: ComplianceSet
+  fields: 5
+  required:
+  - id
+  - project
+  - label
+  - shortName
+  - options
+  identifier_fields:
+  - id
+- entity: CreateProjectRequestBody
+  fields: 9
+  required:
+  - name
+  - companyName
+  - dueDate
+  - projectType
+  relationships:
+  - type: has_one
+    target: ProjectType
+    via: projectType
+- entity: CustomMsDynamicsInputField
+  fields: 6
+  identifier_fields:
+  - id
+- entity: CustomProjectField
+  fields: 0
+- entity: CustomProjectFieldInputSource
+  fields: 0
+- entity: CustomProjectFieldPatchValuesMap
+  fields: 0
+- entity: CustomProjectFieldProjectSourceInput
+  fields: 5
+  required:
+  - name
+  - fieldType
+- entity: CustomProjectFieldResponse
+  fields: 7
+  identifier_fields:
+  - id
+- entity: CustomProjectFieldValuesMap
+  fields: 0
+- entity: CustomSalesforceInputField
+  fields: 5
+  identifier_fields:
+  - id
+- entity: DateTimeRangeFilter
+  fields: 5
+- entity: Entry
+  fields: 0
+  required:
+  - project
+- entity: EntryComplianceAnswerCollection
+  fields: 0
+- entity: EntryNoProjectId
+  fields: 3
+  required:
+  - id
+  - question
+  - answer
+  identifier_fields:
+  - id
+- entity: Error
+  fields: 3
+  identifier_fields:
+  - debugId
+- entity: File
+  fields: 11
+  required:
+  - filename
+  - status
+  - size
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_one
+    target: ReferenceLabel
+    via: creator
+- entity: Footnote
+  fields: 2
+  identifier_fields:
+  - id
+- entity: IdentifyingUserData
+  fields: 9
+  required:
+  - id
+  - customerId
+  - firstName
+  - lastName
+  - email
+  - customerName
+  - subdomain
+  - tier
+  - activeTimezone
+  identifier_fields:
+  - id
+  - customerId
+- entity: InlineImage
+  fields: 2
+  identifier_fields:
+  - id
+- entity: JsonPatch
+  fields: 0
+- entity: JsonPath
+  fields: 0
+- entity: Language
+  fields: 4
+  identifier_fields:
+  - id
+- entity: LanguageCode
+  fields: 0
+- entity: LibraryEntry
+  fields: 19
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_many
+    target: Question
+    via: questions
+  - type: has_one
+    target: Answer
+    via: answer
+  - type: has_one
+    target: LanguageCode
+    via: languageCode
+  - type: has_one
+    target: ReferenceLabel
+    via: creator
+  - type: has_one
+    target: ReferenceLabel
+    via: lastUpdatedBy
+  - type: has_one
+    target: NullableReferenceLabel
+    via: lastReviewedBy
+  - type: has_one
+    target: LibraryEntryOwner
+    via: libraryEntryOwner
+  - type: has_many
+    target: InlineImage
+    via: inlineImages
+- entity: LibraryEntryAttachmentUploadResponse
+  fields: 2
+  required:
+  - id
+  - filename
+  identifier_fields:
+  - id
+- entity: LibraryEntryBulk
+  fields: 5
+  required:
+  - questions
+  - answer
+  - location
+  relationships:
+  - type: has_one
+    target: LanguageCode
+    via: languageCode
+- entity: LibraryEntryHistory
+  fields: 7
+  identifier_fields:
+  - id
+  - previousHistoryId
+  relationships:
+  - type: has_one
+    target: LibraryEntry
+    via: libraryEntry
+- entity: LibraryEntryOwner
+  fields: 3
+  identifier_fields:
+  - id
+- entity: LibraryLinks
+  fields: 2
+  identifier_fields:
+  - id
+- entity: LibraryLocation
+  fields: 3
+  required:
+  - stackID
+  identifier_fields:
+  - stackID
+  - categoryID
+  - subCategoryID
+- entity: LibrarySearchOptions
+  fields: 10
+  relationships:
+  - type: has_one
+    target: DateTimeRangeFilter
+    via: lastUpdatedDate
+  - type: has_many
+    target: LibraryLocation
+    via: locations
+- entity: MergeVariable
+  fields: 0
+- entity: MergeVariableChange
+  fields: 5
+  required:
+  - name
+  - description
+  - type
+  - changeDate
+  relationships:
+  - type: has_one
+    target: MergeVariableType
+    via: type
+- entity: MergeVariableLibrary
+  fields: 7
+  required:
+  - id
+  - name
+  - value
+  - description
+  - type
+  - createdDate
+  - lastUpdatedDate
+  identifier_fields:
+  - id
+- entity: MergeVariableProject
+  fields: 6
+  required:
+  - id
+  - name
+  - description
+  - type
+  - createdDate
+  - lastUpdatedDate
+  identifier_fields:
+  - id
+- entity: MergeVariableProjectValuesMap
+  fields: 0
+- entity: MergeVariableType
+  fields: 0
+- entity: MergeVariableWide
+  fields: 0
+- entity: NullableReferenceLabel
+  fields: 2
+  identifier_fields:
+  - id
+- entity: ParticipantReference
+  fields: 5
+  identifier_fields:
+  - id
+- entity: Project
+  fields: 10
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_one
+    target: ReferenceLabel
+    via: owner
+  - type: has_one
+    target: ReferenceLabel
+    via: creator
+- entity: ProjectDocument
+  fields: 2
+  required:
+  - file
+  - sections
+  relationships:
+  - type: has_one
+    target: ReferenceLabel
+    via: file
+  - type: has_many
+    target: ProjectSectionWide
+    via: sections
+- entity: ProjectEntryAttachment
+  fields: 9
+  required:
+  - id
+  - filename
+  - status
+  - size
+  - fileExtension
+  - guid
+  - url
+  - creator
+  - lastUpdated
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_one
+    target: ReferenceLabel
+    via: creator
+- entity: ProjectEntryAttachmentUploadResponse
+  fields: 2
+  required:
+  - id
+  - filename
+  identifier_fields:
+  - id
+- entity: ProjectSectionWide
+  fields: 4
+  required:
+  - id
+  - name
+  - subSections
+  - questions
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_many
+    target: ProjectSubSectionWide
+    via: subSections
+  - type: has_many
+    target: EntryNoProjectId
+    via: questions
+- entity: ProjectSourceFile
+  fields: 0
+- entity: ProjectSubSectionWide
+  fields: 3
+  required:
+  - id
+  - name
+  - questions
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_many
+    target: EntryNoProjectId
+    via: questions
+- entity: ProjectSummary
+  fields: 12
+  identifier_fields:
+  - id
+- entity: ProjectTemplate
+  fields: 4
+  identifier_fields:
+  - id
+- entity: ProjectType
+  fields: 0
+- entity: ProjectWide
+  fields: 0
+- entity: Question
+  fields: 3
+  identifier_fields:
+  - id
+- entity: ReferenceLabel
+  fields: 2
+  identifier_fields:
+  - id
+- entity: Section
+  fields: 3
+  required:
+  - id
+  - project
+  - name
+  identifier_fields:
+  - id
+- entity: Stack
+  fields: 3
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_many
+    target: Category
+    via: categories
+- entity: SubCategory
+  fields: 4
+  identifier_fields:
+  - id
+  - stackID
+  - categoryID
+- entity: SubSection
+  fields: 4
+  required:
+  - id
+  - project
+  - section
+  - name
+  identifier_fields:
+  - id
+- entity: SubscribableEvent
+  fields: 0
+- entity: Tag
+  fields: 5
+  identifier_fields:
+  - id
+  - createdByUserID
+- entity: TagsPaginated
+  fields: 3
+  required:
+  - totalItems
+  - totalPages
+  - items
+  relationships:
+  - type: has_many
+    target: Tag
+    via: items
+- entity: Team
+  fields: 3
+  identifier_fields:
+  - id
+- entity: TeamUser
+  fields: 4
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_many
+    target: ReferenceLabel
+    via: users
+- entity: User
+  fields: 7
+  identifier_fields:
+  - id
+  - roleId
+  relationships:
+  - type: has_one
+    target: UserStatus
+    via: status
+- entity: UserOrTeamReference
+  fields: 4
+  identifier_fields:
+  - id
+- entity: UserRole
+  fields: 3
+  identifier_fields:
+  - id
+- entity: UserStatus
+  fields: 0
+- entity: UserWithRoleAndTeams
+  fields: 8
+  identifier_fields:
+  - id
+  - roleId
+  relationships:
+  - type: has_one
+    target: UserStatus
+    via: status
+- entity: WebhookSubscription
+  fields: 5
+  required:
+  - id
+  - webhookUrl
+  - events
+  - status
+  - creator
+  identifier_fields:
+  - id
+  relationships:
+  - type: has_many
+    target: SubscribableEvent
+    via: events

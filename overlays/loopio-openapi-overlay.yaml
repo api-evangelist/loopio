@@ -1,0 +1,89 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay for the Loopio Public API v2
+  version: 1.0.0
+extends: ../openapi/loopio-openapi.yaml
+x-generated: '2026-08-25'
+x-method: generated
+x-source: >-
+  Derived from API Evangelist enrichment artifacts in this repository — authentication/,
+  scopes/, conventions/, errors/, lifecycle/, asyncapi/, well-known/ — plus the Loopio
+  Getting Started guide at
+  https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api.
+  The original spec is never mutated; these are our annotations, not Loopio's.
+actions:
+- target: $.info
+  description: >-
+    Record the real base URLs, the documentation home and the fact that info.version tracks the
+    document rather than the API.
+  update:
+    x-api-version: v2
+    x-documentation: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+    x-status-page: https://www.loopiostatus.com/
+    x-error-envelope: 'vendor {name, message, debugId} — not RFC 9457'
+    x-info-version-note: >-
+      info.version (1.0.0) is a document version. The API version is the /data/v2 path segment.
+- target: $.servers[1]
+  description: >-
+    The European server is declared in the contract but the provider's own Getting Started guide
+    states it is not yet accessible. Flag it so a client does not route to a dead datacenter.
+  update:
+    x-availability: unavailable
+    x-availability-source: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+    x-availability-note: >-
+      "the European API hasn't been made accessible yet. At this time please only use
+      api.loopio.com host."
+- target: $.components.securitySchemes.loopio_auth
+  description: >-
+    Absolute token/authorize URLs (the spec uses relative paths) and the discovery documents the
+    authorization server actually serves.
+  update:
+    x-token-endpoint: https://api.loopio.com/oauth2/access_token
+    x-authorization-endpoint: https://api.loopio.com/oauth2/authorize
+    x-authorization-server-metadata: https://api.loopio.com/.well-known/oauth-authorization-server
+    x-protected-resource-metadata: https://api.loopio.com/.well-known/oauth-protected-resource
+    x-token-ttl-seconds: 3600
+    x-scopes-advertised-by-server: 51
+    x-scopes-declared-in-spec: 22
+    x-scope-mutability: fixed at App creation; an App must be recreated to change scopes
+- target: $.components.schemas.Error
+  description: Name the error envelope and point at the derived error catalog.
+  update:
+    x-error-catalog: errors/loopio-problem-types.yml
+    x-rfc9457: false
+    x-correlation-field: debugId
+- target: $.components.parameters.PageSize
+  description: Record the observed pageSize ceiling, which the shared component omits.
+  update:
+    x-max-observed: 200
+    x-max-source: 'openapi/loopio-openapi.yaml — the inline pageSize on /libraryEntries declares maximum 200'
+- target: $.components.schemas.SubscribableEvent
+  description: Bind the event enum to the derived webhook catalog.
+  update:
+    x-event-catalog: asyncapi/loopio-events-webhooks.yml
+    x-signature-headers:
+    - X-Loopio-Content-Signature
+    - X-Loopio-Request-Timestamp
+- target: $.paths..[?(@.operationId)]
+  description: >-
+    Record on every operation that this API publishes no idempotency mechanism, no rate-limit
+    signal and no request-id header, so an agent plans retries with those facts in hand.
+  update:
+    x-idempotency: none
+    x-rate-limit-signal: none
+    x-request-id-header: none
+    x-conventions: conventions/loopio-conventions.yml
+- target: "$.paths['/projects/{projectId}'].delete"
+  description: Flag the irreversibility of the destructive Project delete.
+  update:
+    x-reversibility: none
+    x-reversibility-note: >-
+      No restore operation and no published retention window. Read the Project before deleting;
+      the response is the only rollback material available.
+- target: "$.paths['/libraryEntries/{libraryEntryId}'].delete"
+  description: Flag in-product-only reversibility for Library Entry deletes.
+  update:
+    x-reversibility: in-product-only
+    x-reversibility-note: >-
+      LibraryEntryHistory.type includes RESTORE, so the Loopio application can restore an entry,
+      but no API operation performs the restore and no retention window is published.

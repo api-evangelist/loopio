@@ -1,0 +1,104 @@
+generated: '2026-08-25'
+method: derived
+source: openapi/loopio-openapi.yaml
+docs: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+asyncapi_published: false
+asyncapi_note: >-
+  Loopio publishes no AsyncAPI document. It does ship a real, first-party webhook surface,
+  fully modelled inside the REST contract — subscription CRUD operations, a closed
+  SubscribableEvent enum, HMAC signature headers and a signing-secret rotation endpoint —
+  so this artifact captures the event catalog and carries a Webhooks pointer rather than a
+  fabricated AsyncAPI spec.
+surface: webhooks
+transport: HTTPS POST to a subscriber-supplied callback URL
+delivery: at-least-once (not stated by the provider; no delivery guarantee is published)
+subscription_model:
+  managed_via: Loopio Public API v2
+  base_url: https://api.loopio.com/data/v2
+  resource: /webhookSubscriptions
+  operations:
+  - operationId: listWebhookSubscriptions
+    method: GET
+    path: /webhookSubscriptions
+    scope: webhook:read
+  - operationId: createWebhookSubscription
+    method: POST
+    path: /webhookSubscriptions
+    scope: webhook:write
+  - operationId: getWebhookSubscription
+    method: GET
+    path: /webhookSubscriptions/{subscriptionId}
+    scope: webhook:read
+  - operationId: updateWebhookSubscription
+    method: PUT
+    path: /webhookSubscriptions/{subscriptionId}
+    scope: webhook:write
+  - operationId: cancelWebhookSubscription
+    method: DELETE
+    path: /webhookSubscriptions/{subscriptionId}
+    scope: webhook:delete
+  - operationId: refreshWebhookSigningSecret
+    method: POST
+    path: /webhookSubscriptions/{subscriptionId}/signingSecret
+    scope: webhook:write
+  subscription_schema:
+    id: integer
+    webhookUrl: 'string (uri, must match ^https://)'
+    events: array of SubscribableEvent, minItems 1
+    status: PENDING | ACTIVE | DISABLED
+    creator: '{ id: integer }'
+  url_validation: >-
+    Loopio validates the callback URL automatically as part of the create request; the
+    subscription starts in PENDING and moves to ACTIVE once validation succeeds.
+    Reference: https://support.loopio.com/hc/en-us/articles/4404035824147-How-Do-I-Validate-My-Webhook-URL-
+security:
+  signing: HMAC over the JSON-encoded request body using the subscription's signing secret
+  headers:
+  - name: X-Loopio-Content-Signature
+    required: true
+    description: The JSON-encoded body of the request, hashed with the webhook's signing secret
+  - name: X-Loopio-Request-Timestamp
+    required: true
+    type: integer
+    description: Timestamp of when the request was sent (replay-window material)
+  secret_rotation:
+    operationId: refreshWebhookSigningSecret
+    path: /webhookSubscriptions/{subscriptionId}/signingSecret
+    note: A first-party rotation endpoint — the secret can be rolled without recreating the subscription.
+  docs: https://support.loopio.com/hc/en-us/articles/4404073215763-How-Do-I-Use-My-Signing-Secret-
+event_count: 4
+events:
+- name: libraryEntry.updated
+  domain: Library
+  description: A Library Entry was updated.
+  related_operations:
+  - getLibraryEntry
+  - getLibraryEntryHistories
+- name: libraryReview.assigned
+  domain: Library
+  description: A Library review was assigned.
+  related_operations:
+  - getLibraryEntry
+- name: project.created
+  domain: Projects
+  description: A Project was created.
+  related_operations:
+  - getProject
+- name: project.statusChanged
+  domain: Projects
+  description: A Project's status changed.
+  related_operations:
+  - getProject
+  - getProjectSummary
+gaps:
+- No event payload schema is published in the OpenAPI — the payload shape is described only in
+  the Loopio help centre, which is behind a Cloudflare bot challenge for automated clients
+  (https://support.loopio.com/hc/en-us/articles/4404035409555-What-Information-is-in-a-Webhook-Event-Notification-
+  returned HTTP 403 to this probe).
+- No retry policy, backoff schedule, delivery-guarantee statement or dead-letter behaviour is published.
+- The event catalog is closed and small — 4 events against 96 REST operations, with no events at all
+  for Users, Teams, Merge Variables, Custom Project Fields, Files or Project Entries.
+polling_alternative:
+  note: >-
+    Where no event exists, the supported change-detection route is the lastUpdatedDateGt
+    filter on listLibraryEntries and getProjectSummaryList.

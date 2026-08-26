@@ -1,0 +1,234 @@
+generated: '2026-08-25'
+method: derived
+source: openapi/loopio-openapi.yaml
+docs: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+derived_from:
+- openapi/loopio-openapi.yaml
+- authentication/loopio-authentication.yml
+- errors/loopio-problem-types.yml
+- well-known/loopio-oauth-authorization-server.json
+auth:
+  style: oauth2-bearer
+  flow: client_credentials
+  header: 'Authorization: Bearer {token}'
+  token_ttl_seconds: 3600
+  scoped: true
+  detail: authentication/loopio-authentication.yml
+versioning:
+  style: path
+  current: v2
+  base_path: /data/v2
+  base_url: https://api.loopio.com/data/v2
+  info_version: 1.0.0
+  note: >-
+    The API version lives in the path (/data/v2). The OpenAPI info.version is an unrelated
+    document version (1.0.0) and does not track the API. No Accept-header or query-parameter
+    versioning is offered, and no version-negotiation header is declared.
+pagination:
+  style: page-number
+  params:
+  - name: page
+    in: query
+    type: integer
+    minimum: 1
+    default: 1
+  - name: pageSize
+    in: query
+    type: integer
+    minimum: 1
+    default: 10
+    maximum_note: >-
+      /libraryEntries caps pageSize at 200; the shared PageSize component parameter used by
+      the other collections declares no maximum.
+  response_fields:
+  - totalItems
+  - totalPages
+  - items
+  note: >-
+    Every collection response is an object with totalItems, totalPages and items — there is
+    no cursor, no Link header, and no next/prev URL, so a client paginates by incrementing
+    page until it reaches totalPages.
+filtering_and_sorting:
+  incremental_sync:
+    param: lastUpdatedDateGt
+    note: >-
+      Library Entries and the project summary list accept lastUpdatedDateGt, which is the
+      supported way to poll for changes without a webhook.
+  search: searchQuery
+  sparse_fields:
+    param: fields
+    note: A `fields` query parameter is offered on a small number of operations; it is not API-wide.
+  expansion:
+    param: 'inline[]'
+    note: Used on Library Entry reads to inline related content such as images.
+  sorting:
+    params:
+    - sortBy
+    - sortDirection
+    - ordering
+    note: Sorting is per-operation, not a shared convention.
+partial_update:
+  style: rfc6902-json-patch
+  media_type: application/json
+  schema: JsonPatch
+  operations:
+  - add
+  - replace
+  - test
+  - remove
+  path_format: JSON Pointer
+  note: >-
+    PATCH operations (Library Entries, Merge Variables, Custom Project Fields, Custom Project
+    Field values) take an RFC 6902 JSON Patch document. Dedicated 400/422 responses
+    (InvalidJSONPatchDocument, UnprocessableJSONPatchRequest) are declared for patch failures.
+    Full-replacement updates use PUT.
+asynchrony:
+  style: task-polling
+  trigger_status: 202
+  accepted_body:
+    taskId: integer
+  poll_operations:
+  - getAsyncStatus
+  - getMegeVariableDeleteStatus
+  - getProjectTemplateCopyAsyncStatus
+  triggering_operations:
+  - bulkCreateLibraryEntries
+  - createProjectFromTemplate
+  - deleteMergeVariable
+  note: >-
+    Long-running writes return 202 with a taskId and are polled on /asyncTasks/{taskId}.
+    There is no callback for task completion — polling is the only completion signal.
+error_envelope:
+  media_type: application/json
+  rfc9457: false
+  schema: Error
+  fields:
+  - name
+  - message
+  - debugId
+  detail: errors/loopio-problem-types.yml
+request_id_tracing:
+  request_header: none
+  response_header: none
+  correlation: debugId inside the error body
+  note: >-
+    There is no X-Request-Id (or equivalent) request or response header declared anywhere in
+    the contract. The only correlation handle is debugId, and it is present only on errors —
+    a successful call cannot be correlated with a Loopio-side trace.
+rate_limit_signaling:
+  documented: false
+  headers: []
+  exhaustion_status: null
+  note: >-
+    No 429 response is declared on any of the 96 operations, no X-RateLimit-*/RateLimit-*
+    header appears in the contract, and no published rate-limit page was found. See
+    rate-limits/loopio-rate-limits.yml.
+idempotency:
+  supported: false
+  header: null
+  note: >-
+    No Idempotency-Key header, no idempotency semantics and no request-replay guidance appear
+    anywhere in the OpenAPI or the Getting Started guide. POST /libraryEntries,
+    POST /projects and the bulk endpoints are therefore unsafe to retry blind: a repeated
+    create produces a duplicate. PUT and PATCH updates are naturally idempotent by
+    HTTP semantics, and DELETE returns 404 on a repeat.
+  no_pointer_reason: >-
+    No Idempotency common[] pointer is emitted, because the provider does not implement
+    idempotency keys.
+dry_run_mode:
+  supported: false
+  note: No preview/validate-only/dry-run mode is offered on any write operation.
+webhooks:
+  detail: asyncapi/loopio-events-webhooks.yml
+  signature_headers:
+  - X-Loopio-Content-Signature
+  - X-Loopio-Request-Timestamp
+  transport: HTTPS only (webhookUrl is pattern-constrained to ^https://)
+reversibility:
+  grade: documented
+  applies: true
+  summary: >-
+    Loopio ships a broad delete surface (10 DELETE operations across Projects, Project
+    Entries, Sections, subSections, Library Entries, attachments, Merge Variables, Custom
+    Project Fields, Files and webhook subscriptions) and NO public reversal operation for
+    any of them. The product itself can restore a Library Entry — the LibraryEntryHistory
+    schema declares a RESTORE history-item type — but no API operation performs that
+    restore, and no retention window is stated in any public Loopio document. An agent
+    calling deleteProject or deleteLibraryEntry should treat the action as irreversible
+    through the API.
+  write_surfaces:
+  - surface: Projects
+    destructive_operations:
+    - deleteProject
+    reversal_operation: null
+    window: null
+    grade: none
+    note: 'Documented as "Delete a Project and its data." No restore endpoint, no stated window.'
+  - surface: Library Entries
+    destructive_operations:
+    - deleteLibraryEntry
+    - deleteLibraryEntryAttachment
+    reversal_operation: null
+    window: null
+    grade: documented
+    note: >-
+      LibraryEntryHistory.type includes RESTORE, so a restore path exists inside the Loopio
+      application and is recorded in the entry's history — but it is not exposed as an API
+      operation and no retention window is published. Reversal is in-product only.
+  - surface: Project structure (entries, sections, subSections)
+    destructive_operations:
+    - deleteProjectEntry
+    - deleteProjectSection
+    - deleteProjectSubSection
+    - deleteProjectEntryAttachment
+    reversal_operation: null
+    window: null
+    grade: none
+    note: 'deleteProjectSection is documented as deleting "a Project section and its content."'
+  - surface: Merge Variables
+    destructive_operations:
+    - deleteMergeVariable
+    reversal_operation: null
+    window: null
+    grade: none
+    note: >-
+      Deletion is asynchronous (202 + taskId, polled via getMegeVariableDeleteStatus). The
+      async task can be observed but not cancelled — there is no cancel operation on
+      /asyncTasks.
+  - surface: Custom Project Fields
+    destructive_operations:
+    - deleteCustomProjectField
+    reversal_operation: null
+    window: null
+    grade: none
+  - surface: Files
+    destructive_operations:
+    - deleteFile
+    reversal_operation: null
+    window: null
+    grade: none
+  - surface: Webhook subscriptions
+    destructive_operations:
+    - cancelWebhookSubscription
+    reversal_operation: createWebhookSubscription
+    window: null
+    grade: documented
+    note: >-
+      The only genuinely reversible write: a cancelled subscription can be re-created with
+      the same events and URL. It is a re-create rather than an undo — the subscription id
+      and signing secret change — and no window applies.
+  - surface: Users
+    destructive_operations:
+    - bulkRemoveUsers
+    - bulkUserDisableByEmail
+    reversal_operation: null
+    window: null
+    grade: documented
+    note: >-
+      Disabling is separate from removing, and a disabled user can be re-enabled through
+      updateUser (UserStatus), so bulkUserDisableByEmail is the reversible half of this
+      pair. bulkRemoveUsers has no documented reversal.
+  agent_guidance: >-
+    Before any DELETE, read the resource and retain the response — that copy is the only
+    rollback material this API gives you. Prefer disabling over removing users. Prefer
+    updating a Library Entry's status over deleting it.

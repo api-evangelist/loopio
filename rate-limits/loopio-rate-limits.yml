@@ -1,0 +1,34 @@
+generated: '2026-08-25'
+method: searched
+source: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+limit_count: 0
+documented: false
+headers: []
+exhaustion_status: null
+retry_after: false
+note: >-
+  No published rate limits were found. The Getting Started guide is silent on throttling; the
+  96-operation OpenAPI declares no 429 response, no X-RateLimit-* or RateLimit-* header, and no
+  Retry-After header on any operation or in components.headers (which is empty). The help-centre
+  API section could not be read — support.loopio.com returns HTTP 403 to automated clients behind
+  a Cloudflare challenge — so a limit documented only there would not have been visible to this
+  probe. This is an honest zero: limits almost certainly exist server-side, but Loopio publishes
+  no runtime signal an agent could read, which means a client cannot distinguish throttling from
+  a generic 403/500.
+adjacent_limits:
+- surface: pagination
+  limit: pageSize maximum 200 on listLibraryEntries
+  source: openapi/loopio-openapi.yaml
+- surface: signed file URLs
+  limit: File.url signed S3 links expire after 10 minutes
+  source: openapi/loopio-openapi.yaml
+- surface: access token
+  limit: expires_in 3600 seconds
+  source: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+evidence:
+- url: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  status: 200
+  finding: no rate-limit section
+- url: https://support.loopio.com/hc/en-us/sections/1500000691282-API
+  status: 403
+  finding: Cloudflare bot challenge — help-centre API section unreadable

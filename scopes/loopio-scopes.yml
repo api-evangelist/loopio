@@ -1,0 +1,436 @@
+generated: '2026-08-25'
+method: searched
+source: https://api.loopio.com/.well-known/oauth-authorization-server
+docs: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+derived_from:
+- openapi/loopio-openapi.yaml
+- well-known/loopio-oauth-authorization-server.json
+scheme: loopio_auth
+flows:
+- authorizationCode
+- clientCredentials
+token_endpoint: https://api.loopio.com/oauth2/access_token
+authorization_endpoint: https://api.loopio.com/oauth2/authorize
+delimiter: space (URL-encoded as +)
+counts:
+  declared_in_openapi: 22
+  advertised_by_authorization_server: 51
+  applied_to_operations: 26
+  advertised_but_not_in_openapi: 30
+notes:
+- The authorization server advertises 51 scopes; the published OpenAPI declares only 22. The 30 extra
+  scopes describe surfaces Loopio operates but does not document in the public contract.
+- Scopes are fixed at App creation time and cannot be edited afterwards.
+- businessUnit:write is applied to bulkAssignBusinessUnitUsers but is NOT declared in the securityScheme
+  scopes map — an in-spec inconsistency.
+scopes:
+- scope: appLoopioManaged:delete
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: appLoopioManaged:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: appLoopioManaged:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: businessUnit:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: config.cloudStorage:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: contentIntegration:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: crm:delete
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: crm:read
+  description: List CRM opportunities linked to projects
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - listCRMProjects
+- scope: crm:write
+  description: Link CRM opportunities to projects
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - createOpportunityLink
+- scope: customProjectField:delete
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - deleteCustomProjectField
+- scope: customProjectField:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 2
+  operations:
+  - getCustomProjectField
+  - listCustomProjectFields
+- scope: customProjectField:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 2
+  operations:
+  - createCustomProjectField
+  - updateCustomProjectField
+- scope: customer.info:read
+  description: View customer information
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: false
+  operation_count: 2
+  operations:
+  - getCustomer
+  - getCustomerActiveLanguages
+- scope: documentContent:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: file:delete
+  description: Delete files
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - deleteFile
+- scope: file:read
+  description: Download files and view file information
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - showFile
+- scope: file:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: library:delete
+  description: Delete Library Entries
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - deleteLibraryEntry
+- scope: library:read
+  description: List Library Entries and stacks, view Library Entries and Entry data
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 7
+  operations:
+  - getLibraryEntry
+  - getLibraryEntryFiles
+  - getLibraryEntryHistories
+  - getLibraryEntryHistory
+  - getTags
+  - listLibraryEntries
+  - listStacks
+- scope: library:write
+  description: Create and update Library Entries and Entry data
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 6
+  operations:
+  - bulkCreateLibraryEntries
+  - createLibraryEntry
+  - deleteLibraryEntryAttachment
+  - replaceLibraryEntryAttachment
+  - updateLibraryEntry
+  - uploadLibraryEntryAttachment
+- scope: mcp.prompts:all
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: mcp.resources:all
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: mcp.tools:all
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: mergeVariable:delete
+  description: Delete Merge Variables
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - deleteMergeVariable
+- scope: mergeVariable:read
+  description: View Merge Variables
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 4
+  operations:
+  - getMergeVariable
+  - getMergeVariableHistory
+  - getMergeVariableValuesForProject
+  - listMergeVariables
+- scope: mergeVariable:write
+  description: Create/Edit Merge Variables
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 3
+  operations:
+  - createMergeVariable
+  - setMergeVariableValuesForProject
+  - updateMergeVariable
+- scope: metrics:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: msDynamics:delete
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: msDynamics:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: msDynamics:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: notification.msDynamics:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: pitchPartner:all
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: project.participant:read
+  description: List participants of a project
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - getProjectParticipants
+- scope: project.participant:write
+  description: Update participant information
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - updateProjectParticipants
+- scope: project:delete
+  description: Delete a Project
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - deleteProject
+- scope: project:read
+  description: List Projects, view Project data and source documents
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 15
+  operations:
+  - getCustomProjectFieldValuesForProject
+  - getMergeVariableValuesForProject
+  - getProject
+  - getProjectEntry
+  - getProjectEntryAttachments
+  - getProjectSection
+  - getProjectSubQuestion
+  - getProjectSummary
+  - getProjectSummaryList
+  - listProjectEntries
+  - listProjectSections
+  - listProjectSourceDocuments
+  - listProjectSubSections
+  - listProjectTemplates
+  - listProjects
+- scope: project:write
+  description: Create and update Projects, Project data, and source documents
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 18
+  operations:
+  - addProjectSourceDocument
+  - createProject
+  - createProjectEntry
+  - createProjectFromTemplate
+  - createProjectSection
+  - createProjectSubSection
+  - deleteProjectEntry
+  - deleteProjectEntryAttachment
+  - deleteProjectSection
+  - deleteProjectSubSection
+  - replaceProjectEntryAttachment
+  - setCustomProjectFieldValuesForProject
+  - setMergeVariableValuesForProject
+  - updateProject
+  - updateProjectEntry
+  - updateProjectSection
+  - updateProjectSubSection
+  - uploadProjectEntryAttachment
+- scope: role:read
+  description: List user assignable roles
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 2
+  operations:
+  - getRole
+  - listRoles
+- scope: salesforce:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: salesforce:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: scim.group:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: scim.group:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: scim.user:read
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: scim.user:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: unifiedAnswer:all
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: user:delete
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0
+- scope: user:read
+  description: List users, view user information
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 5
+  operations:
+  - getTeam
+  - getUser
+  - identifyUser
+  - listTeams
+  - listUsers
+- scope: user:write
+  description: Update user information
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 7
+  operations:
+  - bulkAssignRole
+  - bulkAssignUsersToTeams
+  - bulkRemoveUsers
+  - bulkResendActivationEmail
+  - bulkUserDisableByEmail
+  - createUser
+  - updateUser
+- scope: webhook:delete
+  description: Delete webhook subscriptions
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 1
+  operations:
+  - cancelWebhookSubscription
+- scope: webhook:read
+  description: View webhook subscriptions
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 2
+  operations:
+  - getWebhookSubscription
+  - listWebhookSubscriptions
+- scope: webhook:write
+  description: Create & edit webhook subscriptions
+  flows:
+  - authorizationCode
+  - clientCredentials
+  in_openapi: true
+  advertised_by_authorization_server: true
+  operation_count: 3
+  operations:
+  - createWebhookSubscription
+  - refreshWebhookSigningSecret
+  - updateWebhookSubscription
+- scope: zendesk:write
+  in_openapi: false
+  advertised_by_authorization_server: true
+  operation_count: 0

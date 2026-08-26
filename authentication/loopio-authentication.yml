@@ -1,0 +1,108 @@
+generated: '2026-08-25'
+method: searched
+source: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+docs: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+derived_from:
+- openapi/loopio-openapi.yaml
+- well-known/loopio-oauth-authorization-server.json
+- well-known/loopio-oauth-protected-resource.json
+summary:
+  types:
+  - oauth2
+  oauth2_flows:
+  - clientCredentials
+  - authorizationCode
+  primary_flow: clientCredentials
+  bearer_methods_supported:
+  - header
+  note: >-
+    The published OpenAPI declares both an authorizationCode and a clientCredentials flow,
+    and the RFC 8414 discovery document additionally advertises refresh_token. The Getting
+    Started guide states plainly that "clients are authenticated using the client_credentials
+    flow", so client credentials is the documented path for API integrations.
+schemes:
+- name: loopio_auth
+  type: oauth2
+  in_spec: true
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://api.loopio.com/oauth2/authorize
+    tokenUrl: https://api.loopio.com/oauth2/access_token
+    scopes_in_spec: 22
+  - flow: clientCredentials
+    tokenUrl: https://api.loopio.com/oauth2/access_token
+    scopes_in_spec: 22
+  sources:
+  - openapi/loopio-openapi.yaml
+authorization_server:
+  issuer: https://api.loopio.com
+  metadata_document: https://api.loopio.com/.well-known/oauth-authorization-server
+  metadata_status: 200
+  authorization_endpoint: https://api.loopio.com/oauth2/authorize
+  token_endpoint: https://api.loopio.com/oauth2/access_token
+  grant_types_supported:
+  - authorization_code
+  - refresh_token
+  - client_credentials
+  response_types_supported:
+  - code
+  response_modes_supported:
+  - query
+  token_endpoint_auth_methods_supported:
+  - client_secret_basic
+  - client_secret_post
+  - none
+  code_challenge_methods_supported:
+  - S256
+  client_id_metadata_document_supported: true
+  op_policy_uri: https://loopio.com/legal/privacy/
+  op_tos_uri: https://loopio.com/legal/
+protected_resource:
+  metadata_document: https://api.loopio.com/.well-known/oauth-protected-resource
+  metadata_status: 200
+  resource: https://api.loopio.com
+  resource_name: Loopio
+  authorization_servers:
+  - https://api.loopio.com
+  bearer_methods_supported:
+  - header
+token_request:
+  method: POST
+  url: https://api.loopio.com/oauth2/access_token
+  content_type: application/x-www-form-urlencoded
+  parameters:
+  - grant_type=client_credentials
+  - scope (space-delimited, URL-encoded as +)
+  - client_id
+  - client_secret
+  response_fields:
+  - token_type
+  - expires_in
+  - access_token
+  token_type: Bearer
+  expires_in_seconds: 3600
+  request_header: 'Authorization: Bearer {token}'
+credential_lifecycle:
+  issued_by: A Loopio Admin creates an App under Admin > Integrations > For Developers
+  secret_visibility: The client secret is shown once, only while the admin remains on the creation page
+  scope_mutability: >-
+    Scopes cannot be changed after an App is created — the App must be deleted and recreated
+    with a different scope set.
+  guidance: Loopio's docs direct integrators to the principle of least privilege when selecting scopes
+regions:
+- name: North America
+  host: https://api.loopio.com
+  status: available
+- name: Europe
+  host: https://api.eu.loopio.com
+  status: >-
+    declared in the OpenAPI servers[] block but the Getting Started guide carries an explicit
+    disclaimer that "the European API hasn't been made accessible yet. At this time please
+    only use api.loopio.com host."
+- name: int01 test instances
+  host: https://api.int01.loopio.com
+  status: separate credentials required; provisioned by Loopio, not self-serve
+notes:
+- Credentials are datacenter-scoped — a client issued for North America will not work in Europe.
+- No API-key, HTTP basic, mutualTLS or openIdConnect scheme is declared anywhere in the contract.
+- No /.well-known/openid-configuration is served; OIDC discovery returns 404 on api.loopio.com.

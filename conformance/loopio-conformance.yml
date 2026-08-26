@@ -1,0 +1,133 @@
+generated: '2026-08-25'
+method: searched
+source: >-
+  openapi/loopio-openapi.yaml, well-known/loopio-oauth-authorization-server.json,
+  well-known/loopio-oauth-protected-resource.json, https://loopio.com/legal/compliance-statement/
+standards:
+- id: openapi
+  name: OpenAPI Specification
+  version: 3.0.1
+  conforms: true
+  evidence: 'openapi/loopio-openapi.yaml — openapi: 3.0.1, 62 paths, 96 operations, 72 component schemas, all operations carry a unique operationId'
+- id: oauth2
+  name: OAuth 2.0 (RFC 6749)
+  conforms: true
+  evidence: >-
+    components.securitySchemes.loopio_auth declares authorizationCode and clientCredentials
+    flows; the Getting Started guide documents the client_credentials token request verbatim.
+- id: rfc8414
+  name: OAuth 2.0 Authorization Server Metadata
+  conforms: true
+  evidence: >-
+    https://api.loopio.com/.well-known/oauth-authorization-server returns HTTP 200 with issuer,
+    authorization_endpoint, token_endpoint, grant_types_supported, response_types_supported,
+    token_endpoint_auth_methods_supported, code_challenge_methods_supported and scopes_supported.
+- id: rfc9728
+  name: OAuth 2.0 Protected Resource Metadata
+  conforms: true
+  evidence: >-
+    https://api.loopio.com/.well-known/oauth-protected-resource returns HTTP 200 with resource,
+    resource_name "Loopio", authorization_servers, scopes_supported and bearer_methods_supported.
+    Serving RFC 9728 at all puts Loopio in a small minority of API providers.
+- id: rfc7636
+  name: PKCE
+  conforms: true
+  evidence: 'code_challenge_methods_supported: ["S256"] in the authorization server metadata'
+- id: rfc6902
+  name: JSON Patch
+  conforms: true
+  evidence: >-
+    components.schemas.JsonPatch models an RFC 6902 patch document (op add/replace/test/remove
+    with a JSON Pointer path); PATCH operations on Library Entries, Merge Variables and Custom
+    Project Fields consume it, and dedicated InvalidJSONPatchDocument /
+    UnprocessableJSONPatchRequest responses are declared.
+- id: rfc6901
+  name: JSON Pointer
+  conforms: true
+  evidence: components.schemas.JsonPath is described as "A JSON Pointer path."
+- id: rfc3339
+  name: RFC 3339 date-time
+  conforms: true
+  evidence: 'date-time fields throughout use the format 2019-05-23T15:32:00Z; the API timezone is declared as UTC'
+- id: scim
+  name: SCIM 2.0 (RFC 7643/7644) user and group provisioning
+  conforms: partial
+  domain_standard: true
+  evidence: >-
+    The authorization server advertises four SCIM scopes — scim.user:read, scim.user:write,
+    scim.group:read, scim.group:write — in both the RFC 8414 and RFC 9728 documents served at
+    api.loopio.com. That is Loopio's own contract surface declaring a SCIM provisioning
+    endpoint for its market (workforce identity / directory sync into an enterprise SaaS).
+    Marked `partial` rather than `true` because the SCIM endpoints themselves are NOT in the
+    published OpenAPI — no /scim/v2 path, no urn:ietf:params:scim:schemas:* URN appears in the
+    contract — so the standard is declared by the token surface but the resource surface is
+    undocumented publicly.
+- id: rfc9457
+  name: Problem Details for HTTP APIs
+  conforms: false
+  evidence: >-
+    Errors are a flat vendor envelope {name, message, debugId} served as application/json.
+    No application/problem+json media type appears anywhere in the contract.
+- id: rfc8594
+  name: Sunset header / deprecation signalling
+  conforms: false
+  evidence: No Sunset or Deprecation response header is declared on any operation; no deprecation policy is published.
+- id: rfc9116
+  name: security.txt
+  conforms: false
+  evidence: '/.well-known/security.txt returns 404 on api.loopio.com and is not served on any Loopio host'
+- id: idempotency
+  name: Idempotency keys
+  conforms: false
+  evidence: No Idempotency-Key header or replay semantics appear in the OpenAPI or the docs
+- id: pagination
+  name: Consistent pagination
+  conforms: true
+  evidence: 'shared page/pageSize component parameters and a uniform {totalItems, totalPages, items} envelope across collections'
+- id: webhook-signing
+  name: Signed webhook delivery
+  conforms: true
+  evidence: >-
+    X-Loopio-Content-Signature (HMAC of the JSON body with the subscription signing secret) and
+    X-Loopio-Request-Timestamp are declared required on webhook callbacks, with a first-party
+    signing-secret rotation endpoint.
+- id: odata
+  name: OData
+  conforms: false
+  evidence: no $metadata surface or OData query options
+- id: fhir
+  name: FHIR
+  conforms: false
+  evidence: not a healthcare API
+compliance_program:
+  page: https://loopio.com/legal/compliance-statement/
+  security_page: https://loopio.com/platform/security/
+  body_verified: false
+  verification_note: >-
+    Both pages are real and indexed but sit behind a Sucuri "sgcaptcha" robot challenge that
+    answers HTTP 202 with a meta-refresh interstitial to automated clients, so their bodies
+    could NOT be read by this probe. The certifications below are recorded as CLAIMED and
+    UNVERIFIED — they come from search-engine snippets of Loopio's own pages, not from a page
+    body this pipeline fetched. They should be re-verified by a human or upgraded from a
+    document Loopio serves without a challenge.
+  claimed_unverified:
+  - SOC 2 Type II (annual third-party audit)
+  - ISO 27001
+  - ISO 9001
+  - GDPR
+  - CCPA
+  - annual third-party penetration testing (OWASP-aligned)
+  - TLS 1.2 in transit, AES-256 at rest
+trust_center:
+  present: false
+  note: >-
+    trust.loopio.com resolves but is the Loopio application wildcard and returns the
+    "Customer Not Found" shell, not a trust centre. No SafeBase/Vanta/Drata-style trust portal
+    was found, and probe-security-programs.py recorded trust=none.
+vulnerability_disclosure:
+  present: false
+  note: >-
+    No security.txt on any host, no /security or /responsible-disclosure page that survived
+    keyword verification, and no bug bounty programme on HackerOne, Bugcrowd or Intigriti.
+    probe-security-programs.py recorded vdp=none, so no VulnerabilityDisclosure or Security
+    pointer is emitted.

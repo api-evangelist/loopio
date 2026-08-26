@@ -1,0 +1,23 @@
+generated: '2026-08-25'
+method: searched
+source: https://support.loopio.com/hc/en-us/articles/13016252043027-Loopio-Release-Notes
+api_changelog: false
+entry_count: 0
+scheme: null
+current_version: v2
+entries: []
+note: >-
+  Loopio publishes no API-scoped changelog. The developer portal
+  (developer.loopio.com, Stoplight Elements) carries a Getting Started article and the API
+  reference and nothing dated. Product-wide release notes exist in the help centre at
+  https://support.loopio.com/hc/en-us/articles/13016252043027-Loopio-Release-Notes, but that
+  host answers HTTP 403 to automated clients behind a Cloudflare challenge, so no entries
+  could be read and none are invented here. No ChangeLog pointer is emitted for the same
+  reason — nothing dated and API-scoped was verified.
+probe:
+- url: https://support.loopio.com/hc/en-us/articles/13016252043027-Loopio-Release-Notes
+  status: 403
+  finding: Cloudflare interstitial ("Just a moment...") — content not machine-readable
+- url: https://developer.loopio.com/
+  status: 200
+  finding: Stoplight SPA; table of contents contains 1 article and 1 http_service, no changelog node

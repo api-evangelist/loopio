@@ -1,0 +1,62 @@
+generated: '2026-08-25'
+method: searched
+source: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+derived_from:
+- openapi/loopio-openapi.yaml
+versioning:
+  scheme: path-based major version
+  current: v2
+  base_path: /data/v2
+  previous_versions_documented: false
+  note: >-
+    The public contract is served at /data/v2 and is the only version Loopio documents. No v1
+    documentation, migration guide or sunset notice for an earlier version is published.
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  in_spec_deprecations:
+  - target: File.lastUpdated
+    kind: schema property
+    replacement: File.lastUpdatedDate
+    note: 'The only `deprecated: true` marker anywhere in the 96-operation contract.'
+  deprecated_operations: 0
+  note: >-
+    Loopio publishes no API deprecation policy, no notice period, and returns no
+    Deprecation or Sunset response headers. A single schema property is marked deprecated
+    in the OpenAPI, with no removal date attached.
+status_page:
+  url: https://www.loopiostatus.com/
+  platform: Atlassian Statuspage
+  machine_readable: https://www.loopiostatus.com/api/v2/summary.json
+  verified: '2026-08-25'
+  http_status: 200
+  components:
+  - Primary Application (North America)
+  - Primary Application (EU)
+  note: >-
+    Loopio runs a real Statuspage under its own domain (page name "Loopio", id 1cjg53263mdn)
+    with a public JSON API. status.loopio.com does NOT resolve to it — that name returns
+    404 — so the canonical status host is www.loopiostatus.com.
+sla:
+  published: false
+  note: No public uptime SLA or availability commitment was found on a page reachable without a sales contract.
+changelog:
+  api_changelog_published: false
+  product_release_notes: https://support.loopio.com/hc/en-us/articles/13016252043027-Loopio-Release-Notes
+  note: >-
+    Loopio publishes product release notes in its help centre, but the help centre is behind
+    a Cloudflare bot challenge (HTTP 403 to automated clients) and the notes are not
+    API-scoped. No dated API changelog exists on the developer portal.
+regions:
+- name: North America
+  api_host: https://api.loopio.com
+  available: true
+- name: Europe
+  api_host: https://api.eu.loopio.com
+  available: false
+  note: >-
+    Declared in the OpenAPI servers[] block but the Getting Started guide states the European
+    API "hasn't been made accessible yet" — a live contract/reality divergence an agent must
+    not act on.

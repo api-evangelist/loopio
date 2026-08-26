@@ -1,0 +1,1036 @@
+generated: '2026-08-25'
+method: derived
+source: openapi/loopio-openapi.yaml
+status: candidate
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: oauth
+  verified: probed
+provider_signal:
+  first_party_server_found: false
+  evidence_of_an_mcp_surface: true
+  detail: 'Loopio''s own OAuth 2.0 authorization server advertises three MCP scopes — mcp.tools:all, mcp.prompts:all
+    and mcp.resources:all — in both its RFC 8414 metadata (https://api.loopio.com/.well-known/oauth-authorization-server,
+    HTTP 200) and its RFC 9728 protected-resource metadata (https://api.loopio.com/.well-known/oauth-protected-resource,
+    HTTP 200). That is a first-party declaration that Loopio operates an MCP surface behind this authorization
+    server. No endpoint for it is published or discoverable: POST tools/list was probed against api.loopio.com/mcp,
+    /mcp/, /mcp/v1, /v1/mcp, /mcp/sse, /mcp/messages, /sse, /ai/mcp, /data/v2/mcp, api.eu.loopio.com/mcp, mcp.loopio.com/
+    and mcp.loopio.com/sse and every one returned HTTP 404 from the Loopio application shell. Loopio serves
+    customers on per-tenant subdomains, so a tenant-scoped MCP endpoint would not be reachable without a customer
+    account. No MCPServer pointer is emitted, because no server was verified — the scopes are recorded as the
+    finding, not as the surface.'
+  mcp_scopes:
+  - mcp.tools:all
+  - mcp.prompts:all
+  - mcp.resources:all
+  probed_paths_all_404:
+  - https://api.loopio.com/mcp
+  - https://api.loopio.com/mcp/
+  - https://api.loopio.com/mcp/v1
+  - https://api.loopio.com/v1/mcp
+  - https://api.loopio.com/mcp/sse
+  - https://api.loopio.com/mcp/messages
+  - https://api.loopio.com/sse
+  - https://api.loopio.com/ai/mcp
+  - https://api.loopio.com/data/v2/mcp
+  - https://api.eu.loopio.com/mcp
+  - https://mcp.loopio.com/
+  - https://mcp.loopio.com/sse
+third_party_servers:
+- name: loopio-mcp
+  registry: npm
+  version: 0.4.0
+  published: '2026-06-22'
+  repository: https://github.com/fredericboyer/loopio-mcp
+  mode: local-stdio
+  transports:
+  - stdio
+  - http
+  official: false
+  note: Self-described as unofficial and not affiliated with or endorsed by Loopio Inc.
+- name: rosemary-charnley-smartbear-loopio-mcp-server
+  registry: npm
+  version: 1.0.1
+  published: '2026-01-29'
+  repository: https://github.com/rosemary-charnley-smartbear/Loopio-MCP
+  mode: local-stdio
+  transports:
+  - stdio
+  official: false
+  note: Personal project scoped to Library Entries management.
+crosswalk_note: 'No mcp/loopio-tool-crosswalk.yml is emitted: a crosswalk binds a PROVIDER tool set to backing
+  OpenAPI operationIds, and Loopio publishes neither a reachable MCP tool list nor a GraphQL schema. Mapping
+  third-party community tools to Loopio operations would attribute an agent surface to Loopio that Loopio does
+  not ship.'
+candidate_tool_count: 96
+candidate_tools_note: Derived one-for-one from the 96 published REST operations as a design reference only.
+  These are NOT tools any server exposes today. Each inherits its backing operation parameters and requestBody
+  as its input schema, and its OAuth scope as its authorization requirement.
+candidate_tools:
+- tool: bulkAssignBusinessUnitUsers
+  method: POST
+  path: /businessUnitUsers/bulkAssign
+  summary: bulk assign users to business units
+  tags:
+  - Users
+  scopes:
+  - businessUnit:write
+  read_only: false
+  destructive: false
+- tool: getCustomerActiveLanguages
+  method: GET
+  path: /customers/{customerId}/activeLanguages
+  summary: Get all the languages in use in a customer's collection of library entries
+  tags:
+  - Customers
+  scopes:
+  - customer.info:read
+  read_only: true
+  destructive: false
+- tool: getCustomer
+  method: GET
+  path: /customers/{customerId}
+  summary: Get the id and guid for a given Customer
+  tags:
+  - Customers
+  scopes:
+  - customer.info:read
+  read_only: true
+  destructive: false
+- tool: showFile
+  method: GET
+  path: /files/{fileId}
+  summary: Show information about a file
+  tags:
+  - Files
+  scopes:
+  - file:read
+  read_only: true
+  destructive: false
+- tool: deleteFile
+  method: DELETE
+  path: /files/{fileId}
+  summary: Delete a file
+  tags:
+  - Files
+  scopes:
+  - file:delete
+  read_only: false
+  destructive: true
+- tool: listCRMProjects
+  method: GET
+  path: /crm/{opportunityID}/projects
+  summary: Get the list of viewable Projects associated with a given CRM Opportunity
+  tags:
+  - CRM
+  scopes:
+  - crm:read
+  read_only: true
+  destructive: false
+- tool: listLibraryEntries
+  method: GET
+  path: /libraryEntries
+  summary: List Library Entries you can interact with
+  tags:
+  - Library Entries
+  scopes:
+  - library:read
+  read_only: true
+  destructive: false
+- tool: createLibraryEntry
+  method: POST
+  path: /libraryEntries
+  summary: Create a Library Entry
+  tags:
+  - Library Entries
+  scopes:
+  - library:write
+  read_only: false
+  destructive: false
+- tool: bulkCreateLibraryEntries
+  method: POST
+  path: /libraryEntries/bulk
+  summary: Bulk create Library Entries
+  tags:
+  - Library Entries
+  - Asynchronous
+  scopes:
+  - library:write
+  read_only: false
+  destructive: false
+- tool: getLibraryEntry
+  method: GET
+  path: /libraryEntries/{libraryEntryId}
+  summary: Get a Library Entry
+  tags:
+  - Library Entries
+  scopes:
+  - library:read
+  read_only: true
+  destructive: false
+- tool: updateLibraryEntry
+  method: PATCH
+  path: /libraryEntries/{libraryEntryId}
+  summary: Update core properties of a Library Entry
+  tags:
+  - Library Entries
+  scopes:
+  - library:write
+  read_only: false
+  destructive: false
+- tool: deleteLibraryEntry
+  method: DELETE
+  path: /libraryEntries/{libraryEntryId}
+  summary: ''
+  tags:
+  - Library Entries
+  scopes:
+  - library:delete
+  read_only: false
+  destructive: true
+- tool: getLibraryEntryFiles
+  method: GET
+  path: /libraryEntries/{libraryEntryId}/attachments
+  summary: Get Library Entry's Attachments
+  tags:
+  - Library Entries
+  scopes:
+  - library:read
+  read_only: true
+  destructive: false
+- tool: uploadLibraryEntryAttachment
+  method: POST
+  path: /libraryEntries/{libraryEntryId}/attachments/upload
+  summary: Upload an attachment to a Library Entry
+  tags:
+  - Library Entries
+  scopes:
+  - library:write
+  read_only: false
+  destructive: false
+- tool: replaceLibraryEntryAttachment
+  method: POST
+  path: /libraryEntries/{libraryEntryId}/attachments/{fileVersionId}/replace
+  summary: Replace an attachment on a Library Entry
+  tags:
+  - Library Entries
+  scopes:
+  - library:write
+  read_only: false
+  destructive: false
+- tool: deleteLibraryEntryAttachment
+  method: DELETE
+  path: /libraryEntries/{libraryEntryId}/attachments/{fileVersionId}
+  summary: Delete an attachment from a Library Entry
+  tags:
+  - Library Entries
+  scopes:
+  - library:write
+  read_only: false
+  destructive: true
+- tool: getLibraryEntryHistories
+  method: GET
+  path: /libraryEntryHistories/{libraryEntryId}
+  summary: Get history of a Library Entry
+  tags:
+  - Library Entries
+  scopes:
+  - library:read
+  read_only: true
+  destructive: false
+- tool: getLibraryEntryHistory
+  method: GET
+  path: /libraryEntryHistories/{libraryEntryId}/{historyId}
+  summary: Get a specific history item of a Library Entry
+  tags:
+  - Library Entries
+  scopes:
+  - library:read
+  read_only: true
+  destructive: false
+- tool: listStacks
+  method: GET
+  path: /stacks
+  summary: List accessible stacks; View full Library structure
+  tags:
+  - Stacks
+  scopes:
+  - library:read
+  read_only: true
+  destructive: false
+- tool: getMegeVariableDeleteStatus
+  method: GET
+  path: /asyncTasks/mergeVariableDelete/{taskId}
+  summary: Get the status of Merge Variable deletion request
+  tags:
+  - Asynchronous
+  - Merge Variables
+  scopes: []
+  read_only: true
+  destructive: false
+- tool: listMergeVariables
+  method: GET
+  path: /mergeVariables
+  summary: List defined Merge Variables
+  tags:
+  - Merge Variables
+  scopes:
+  - mergeVariable:read
+  read_only: true
+  destructive: false
+- tool: createMergeVariable
+  method: POST
+  path: /mergeVariables
+  summary: Create a new Merge Variable
+  tags:
+  - Merge Variables
+  scopes:
+  - mergeVariable:write
+  read_only: false
+  destructive: false
+- tool: getMergeVariable
+  method: GET
+  path: /mergeVariables/{id}
+  summary: Get a Merge Variable
+  tags:
+  - Merge Variables
+  scopes:
+  - mergeVariable:read
+  read_only: true
+  destructive: false
+- tool: updateMergeVariable
+  method: PATCH
+  path: /mergeVariables/{id}
+  summary: Update a Merge Variable
+  tags:
+  - Merge Variables
+  scopes:
+  - mergeVariable:write
+  read_only: false
+  destructive: false
+- tool: deleteMergeVariable
+  method: DELETE
+  path: /mergeVariables/{id}
+  summary: Delete a Merge Variable
+  tags:
+  - Merge Variables
+  scopes:
+  - mergeVariable:delete
+  read_only: false
+  destructive: true
+- tool: getMergeVariableHistory
+  method: GET
+  path: /mergeVariables/{id}/history
+  summary: Get a Merge Variable's history
+  tags:
+  - Merge Variables
+  scopes:
+  - mergeVariable:read
+  read_only: true
+  destructive: false
+- tool: getTags
+  method: GET
+  path: /tags
+  summary: List Available Tags
+  tags:
+  - Tags
+  scopes:
+  - library:read
+  read_only: true
+  destructive: false
+- tool: getProjectComplianceSets
+  method: GET
+  path: /projects/{projectId}/complianceSets
+  summary: Get the Compliance Sets for a Project
+  tags:
+  - Projects
+  scopes: []
+  read_only: true
+  destructive: false
+- tool: createComplianceSet
+  method: POST
+  path: /projects/{projectId}/complianceSets
+  summary: Create a Compliance Set for a Project
+  tags:
+  - Projects
+  scopes: []
+  read_only: false
+  destructive: false
+- tool: getProjectComplianceSet
+  method: GET
+  path: /projects/{projectId}/complianceSets/{complianceSetId}
+  summary: Get a Compliance Set for a Project
+  tags:
+  - Projects
+  scopes: []
+  read_only: true
+  destructive: false
+- tool: updateProjectComplianceSet
+  method: PUT
+  path: /projects/{projectId}/complianceSets/{complianceSetId}
+  summary: Update a Compliance Set for a Project
+  tags:
+  - Projects
+  scopes: []
+  read_only: false
+  destructive: false
+- tool: deleteProjectComplianceSet
+  method: DELETE
+  path: /projects/{projectId}/complianceSets/{complianceSetId}
+  summary: Delete a Compliance Set for a Project
+  tags:
+  - Projects
+  scopes: []
+  read_only: false
+  destructive: true
+- tool: listProjects
+  method: GET
+  path: /projects
+  summary: List projects you can interact with
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: createProject
+  method: POST
+  path: /projects
+  summary: Create a project
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: getProject
+  method: GET
+  path: /projects/{projectId}
+  summary: Get a Project's data
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: updateProject
+  method: PUT
+  path: /projects/{projectId}
+  summary: Update a Project's status
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: deleteProject
+  method: DELETE
+  path: /projects/{projectId}
+  summary: Delete a Project and its data
+  tags:
+  - Projects
+  scopes:
+  - project:delete
+  read_only: false
+  destructive: true
+- tool: getCustomProjectFieldValuesForProject
+  method: GET
+  path: /projects/{projectId}/customProjectFields
+  summary: Get Custom Project Field values for a given Project
+  tags:
+  - Projects
+  - Custom Project Fields
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: setCustomProjectFieldValuesForProject
+  method: PATCH
+  path: /projects/{projectId}/customProjectFields
+  summary: Edit Custom Project Field values for a given Project
+  tags:
+  - Projects
+  - Custom Project Fields
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: getMergeVariableValuesForProject
+  method: GET
+  path: /projects/{projectId}/mergeVariables
+  summary: Get Project Merge Variable values for a Project
+  tags:
+  - Projects
+  - Merge Variables
+  scopes:
+  - project:read
+  - mergeVariable:read
+  read_only: true
+  destructive: false
+- tool: setMergeVariableValuesForProject
+  method: PATCH
+  path: /projects/{projectId}/mergeVariables
+  summary: Edit the values of Project Merge Variables for a Project
+  tags:
+  - Projects
+  - Merge Variables
+  scopes:
+  - project:write
+  - mergeVariable:write
+  read_only: false
+  destructive: false
+- tool: getProjectSummary
+  method: GET
+  path: /projects/{projectId}/summary
+  summary: Get the status summary of a Project
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: getProjectSummaryList
+  method: GET
+  path: /projects/summary
+  summary: Get the status summary list of Projects filtered by date last synced
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: addProjectSourceDocument
+  method: POST
+  path: /projects/{projectId}/sourceDocuments
+  summary: Attach a source document to a Loopio Project
+  tags:
+  - Projects
+  - Files
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: listProjectSourceDocuments
+  method: GET
+  path: /projects/{projectId}/sourceDocuments
+  summary: View basic information on a Project's source files
+  tags:
+  - Projects
+  - Files
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: createOpportunityLink
+  method: POST
+  path: /projects/{projectId}/opportunityLink
+  summary: Link a Loopio Project and CRM Opportunity
+  tags:
+  - Projects
+  - CRM
+  scopes:
+  - crm:write
+  read_only: false
+  destructive: false
+- tool: getProjectParticipants
+  method: GET
+  path: /projects/{projectId}/participants
+  summary: Get the participants for a Project
+  tags:
+  - Projects
+  scopes:
+  - project.participant:read
+  read_only: true
+  destructive: false
+- tool: updateProjectParticipants
+  method: PUT
+  path: /projects/{projectId}/participants
+  summary: Update the participants for a Project
+  tags:
+  - Projects
+  scopes:
+  - project.participant:write
+  read_only: false
+  destructive: false
+- tool: createProjectFromTemplate
+  method: POST
+  path: /projectTemplates/{projectTemplateId}/projects
+  summary: Create a project using a template (This creates an async task to execute this operation)
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: listProjectTemplates
+  method: GET
+  path: /projectTemplates
+  summary: Get a list of published project templates
+  tags:
+  - Project Templates
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: listCustomProjectFields
+  method: GET
+  path: /customProjectFields
+  summary: List defined Custom Project Fields
+  tags:
+  - Custom Project Fields
+  scopes:
+  - customProjectField:read
+  read_only: true
+  destructive: false
+- tool: createCustomProjectField
+  method: POST
+  path: /customProjectFields
+  summary: Create a new Custom Project Field
+  tags:
+  - Custom Project Fields
+  scopes:
+  - customProjectField:write
+  read_only: false
+  destructive: false
+- tool: getCustomProjectField
+  method: GET
+  path: /customProjectFields/{id}
+  summary: Get a Custom Project Field
+  tags:
+  - Custom Project Fields
+  scopes:
+  - customProjectField:read
+  read_only: true
+  destructive: false
+- tool: updateCustomProjectField
+  method: PATCH
+  path: /customProjectFields/{id}
+  summary: Update a Custom Project Field
+  tags:
+  - Custom Project Fields
+  scopes:
+  - customProjectField:write
+  read_only: false
+  destructive: false
+- tool: deleteCustomProjectField
+  method: DELETE
+  path: /customProjectFields/{id}
+  summary: Delete a Custom Project Field
+  tags:
+  - Custom Project Fields
+  scopes:
+  - customProjectField:delete
+  read_only: false
+  destructive: true
+- tool: listProjectEntries
+  method: GET
+  path: /projectEntries
+  summary: List your Project Entries
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: createProjectEntry
+  method: POST
+  path: /projectEntries
+  summary: Create a new Project Entry
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: getProjectEntry
+  method: GET
+  path: /projectEntries/{projectEntryId}
+  summary: Retrieve a specific Project Entry
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: updateProjectEntry
+  method: PUT
+  path: /projectEntries/{projectEntryId}
+  summary: Update a specific Project Entry
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: deleteProjectEntry
+  method: DELETE
+  path: /projectEntries/{projectEntryId}
+  summary: Delete a specific Project Entry
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: true
+- tool: getProjectEntryAttachments
+  method: GET
+  path: /projectEntries/{entryId}/attachments
+  summary: List attachments for a Project Entry
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: uploadProjectEntryAttachment
+  method: POST
+  path: /projectEntries/{entryId}/attachments/upload
+  summary: Upload an attachment to a Project Entry
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: replaceProjectEntryAttachment
+  method: POST
+  path: /projectEntries/{entryId}/attachments/{fileVersionId}/replace
+  summary: Replace an attachment on a Project Entry
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: deleteProjectEntryAttachment
+  method: DELETE
+  path: /projectEntries/{entryId}/attachments/{fileVersionId}
+  summary: Delete an attachment from a Project Entry
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: true
+- tool: listProjectSections
+  method: GET
+  path: /sections
+  summary: List your Project sections
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: createProjectSection
+  method: POST
+  path: /sections
+  summary: Create a new Project section
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: getProjectSection
+  method: GET
+  path: /sections/{sectionId}
+  summary: Retrieve a specific Project section
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: updateProjectSection
+  method: PUT
+  path: /sections/{sectionId}
+  summary: Update a specific Project section
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: deleteProjectSection
+  method: DELETE
+  path: /sections/{sectionId}
+  summary: Delete a Project section and its content
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: true
+- tool: listProjectSubSections
+  method: GET
+  path: /subSections
+  summary: List your Project subSections
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: createProjectSubSection
+  method: POST
+  path: /subSections
+  summary: Create a new Project subSection
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: getProjectSubQuestion
+  method: GET
+  path: /subSections/{subSectionId}
+  summary: Retrieve a specific Project subSection
+  tags:
+  - Projects
+  scopes:
+  - project:read
+  read_only: true
+  destructive: false
+- tool: updateProjectSubSection
+  method: PUT
+  path: /subSections/{subSectionId}
+  summary: Update a specific Project subSection
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: false
+- tool: deleteProjectSubSection
+  method: DELETE
+  path: /subSections/{subSectionId}
+  summary: Delete a Project subSection and its content
+  tags:
+  - Projects
+  scopes:
+  - project:write
+  read_only: false
+  destructive: true
+- tool: getAsyncStatus
+  method: GET
+  path: /asyncTasks/{taskId}
+  summary: Get the status of a queued async request
+  tags:
+  - Asynchronous
+  scopes: []
+  read_only: true
+  destructive: false
+- tool: getProjectTemplateCopyAsyncStatus
+  method: GET
+  path: /asyncTasks/{taskId}/projectTemplateCopy
+  summary: Get the status of a create project from template async task
+  tags:
+  - Asynchronous
+  - Projects
+  scopes: []
+  read_only: true
+  destructive: false
+- tool: listTeams
+  method: GET
+  path: /teams
+  summary: List all teams
+  tags:
+  - Teams
+  scopes:
+  - user:read
+  read_only: true
+  destructive: false
+- tool: getTeam
+  method: GET
+  path: /teams/{teamId}
+  summary: Get a team's data
+  tags:
+  - Teams
+  scopes:
+  - user:read
+  read_only: true
+  destructive: false
+- tool: identifyUser
+  method: GET
+  path: /identify/me
+  summary: Get a User's information from a JWT
+  tags:
+  - Users
+  scopes:
+  - user:read
+  read_only: true
+  destructive: false
+- tool: listRoles
+  method: GET
+  path: /roles
+  summary: List all user roles
+  tags:
+  - Roles
+  scopes:
+  - role:read
+  read_only: true
+  destructive: false
+- tool: getRole
+  method: GET
+  path: /roles/{roleId}
+  summary: Get a user role
+  tags:
+  - Roles
+  scopes:
+  - role:read
+  read_only: true
+  destructive: false
+- tool: listUsers
+  method: GET
+  path: /users
+  summary: List Users
+  tags:
+  - Users
+  scopes:
+  - user:read
+  read_only: true
+  destructive: false
+- tool: createUser
+  method: POST
+  path: /users
+  summary: Create a User
+  tags:
+  - Users
+  scopes:
+  - user:write
+  read_only: false
+  destructive: false
+- tool: bulkUserDisableByEmail
+  method: POST
+  path: /users/bulk/disableByEmail
+  summary: Bulk disable Users by email
+  tags:
+  - Users
+  scopes:
+  - user:write
+  read_only: false
+  destructive: false
+- tool: bulkResendActivationEmail
+  method: POST
+  path: /users/bulk/accountAccessEmail
+  summary: Bulk resend activation email
+  tags:
+  - Users
+  scopes:
+  - user:write
+  read_only: false
+  destructive: false
+- tool: bulkAssignRole
+  method: POST
+  path: /users/bulk/assignRole
+  summary: Bulk assign a Role to Users
+  tags:
+  - Users
+  scopes:
+  - user:write
+  read_only: false
+  destructive: false
+- tool: bulkAssignUsersToTeams
+  method: POST
+  path: /users/bulk/assignToTeams
+  summary: Bulk assign Users to Teams
+  tags:
+  - Users
+  scopes:
+  - user:write
+  read_only: false
+  destructive: false
+- tool: bulkRemoveUsers
+  method: POST
+  path: /users/bulk/remove
+  summary: Bulk remove Users
+  tags:
+  - Users
+  scopes:
+  - user:write
+  read_only: false
+  destructive: false
+- tool: getUser
+  method: GET
+  path: /users/{userId}
+  summary: Get a User
+  tags:
+  - Users
+  scopes:
+  - user:read
+  read_only: true
+  destructive: false
+- tool: updateUser
+  method: PUT
+  path: /users/{userId}
+  summary: Update a User
+  tags:
+  - Users
+  scopes:
+  - user:write
+  read_only: false
+  destructive: false
+- tool: listWebhookSubscriptions
+  method: GET
+  path: /webhookSubscriptions
+  summary: List your event subscriptions (webhooks)
+  tags:
+  - Webhooks
+  scopes:
+  - webhook:read
+  read_only: true
+  destructive: false
+- tool: createWebhookSubscription
+  method: POST
+  path: /webhookSubscriptions
+  summary: Create a new event subscription (new webhook)
+  tags:
+  - Webhooks
+  scopes:
+  - webhook:write
+  read_only: false
+  destructive: false
+- tool: getWebhookSubscription
+  method: GET
+  path: /webhookSubscriptions/{subscriptionId}
+  summary: Get event subscription details
+  tags:
+  - Webhooks
+  scopes:
+  - webhook:read
+  read_only: true
+  destructive: false
+- tool: updateWebhookSubscription
+  method: PUT
+  path: /webhookSubscriptions/{subscriptionId}
+  summary: Change event subscription details
+  tags:
+  - Webhooks
+  scopes:
+  - webhook:write
+  read_only: false
+  destructive: false
+- tool: cancelWebhookSubscription
+  method: DELETE
+  path: /webhookSubscriptions/{subscriptionId}
+  summary: Cancel an event subscription
+  tags:
+  - Webhooks
+  scopes:
+  - webhook:delete
+  read_only: false
+  destructive: true
+- tool: refreshWebhookSigningSecret
+  method: POST
+  path: /webhookSubscriptions/{subscriptionId}/signingSecret
+  summary: Refresh a webhook's signing secret to a new value
+  tags:
+  - Webhooks
+  scopes:
+  - webhook:write
+  read_only: false
+  destructive: false

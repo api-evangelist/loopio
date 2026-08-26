@@ -1,0 +1,84 @@
+generated: '2026-08-25'
+method: derived
+source: openapi/loopio-openapi.yaml
+format: vendor-json
+rfc9457: false
+notes:
+- Loopio does NOT use RFC 9457 application/problem+json. Every error response carries a flat vendor envelope of
+  type Error served as application/json.
+- 'The envelope has three fields: name (a machine-readable enum), message (human text) and debugId (an opaque correlation
+  id an integrator can quote to Loopio support).'
+- debugId is the request-correlation handle for this API — there is no X-Request-Id response header declared anywhere
+  in the contract.
+- No 429 response and no rate-limit response headers are declared on any of the 96 operations.
+envelope:
+  media_type: application/json
+  schema: Error
+  fields:
+  - field: name
+    type: string
+    role: machine-readable error type
+    enum:
+    - FATAL_ERROR
+    - FORBIDDEN
+    - INVALID_REQUEST
+    - NO_PERMISSION
+    - RESOURCE_NOT_FOUND
+    - UNPROCESSABLE_REQUEST
+    - VALIDATION_ERROR
+  - field: message
+    type: string
+    role: human-readable description
+  - field: debugId
+    type: string
+    role: opaque correlation id for support escalation
+error_names:
+- name: FATAL_ERROR
+  meaning: An unhandled server-side failure.
+  remediation: Retry with backoff; quote debugId to Loopio support if it persists.
+- name: FORBIDDEN
+  meaning: The access token does not carry the scope the operation requires.
+  remediation: Create an App with the required scope, or request a token whose scope parameter includes it. Scopes
+    cannot be added to an existing App.
+- name: INVALID_REQUEST
+  meaning: The request was malformed or a parameter failed validation.
+  remediation: Fix the request body or query parameters and retry.
+- name: NO_PERMISSION
+  meaning: The authenticated principal lacks permission on the target resource.
+  remediation: Check the Loopio role and Library/Project permissions of the account behind the App.
+- name: RESOURCE_NOT_FOUND
+  meaning: The addressed resource does not exist or is not visible to this client.
+  remediation: Verify the id; a 404 is also returned where a resource exists but is out of scope for the client.
+- name: UNPROCESSABLE_REQUEST
+  meaning: The request was well-formed but cannot be applied in the current state.
+  remediation: Resolve the state conflict described in message and retry.
+- name: VALIDATION_ERROR
+  meaning: A field in the request body failed a validation rule.
+  remediation: Correct the named field; the message identifies it.
+status_codes:
+- status: 400
+  operations: 54
+  common_description: ''
+  example:
+    name: VALIDATION_ERROR
+    message: Invalid webhook url
+    debugId: 0fas5
+- status: 403
+  operations: 90
+  common_description: ''
+- status: 404
+  operations: 58
+  common_description: ''
+  example:
+    name: RESOURCE_NOT_FOUND
+    message: Resource not found
+    debugId: 0fas3
+- status: 422
+  operations: 11
+  common_description: ''
+- status: 500
+  operations: 4
+  common_description: Fatal Error
+- status: 503
+  operations: 1
+  common_description: Could not save file

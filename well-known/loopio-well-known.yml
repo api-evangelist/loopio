@@ -1,0 +1,110 @@
+generated: '2026-08-25'
+method: searched
+source: live probes of every Loopio host named in apis.yml and openapi/loopio-openapi.yaml servers[]
+notes: >-
+  Two real documents were served, both by the API host api.loopio.com: an RFC 8414 OAuth
+  2.0 Authorization Server Metadata document and an RFC 9728 OAuth 2.0 Protected Resource
+  Metadata document. They are the most information-dense artifacts Loopio publishes
+  anonymously — between them they name the token, authorization and issuer endpoints,
+  the supported grants (authorization_code, refresh_token, client_credentials), PKCE
+  S256, the three client authentication methods, and a 47-scope surface that is
+  materially WIDER than the 22 scopes the published OpenAPI declares (it adds SCIM
+  user/group provisioning, Microsoft Dynamics, Salesforce, Zendesk, unified answers,
+  pitch partner, metrics and mcp.tools/mcp.prompts/mcp.resources scopes).
+  developer.loopio.com is a Stoplight Elements single-page app whose catch-all answers
+  HTTP 200 with the same ~443KB HTML shell for EVERY /.well-known/* path and for
+  /llms.txt — a control probe of a deliberately invented path returned an identical 200,
+  so none of those are documents and none are recorded as hits.
+  loopio.com and www.loopio.com sit behind a Sucuri "sgcaptcha" robot challenge that
+  answers HTTP 202 with a 190-byte meta-refresh interstitial for every path.
+hit_count: 2
+hosts:
+- host: https://api.loopio.com
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: loopio-oauth-authorization-server.json
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: loopio-oauth-protected-resource.json
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://developer.loopio.com
+  soft_404_control:
+    path: /.well-known/this-path-does-not-exist-ae-control
+    status: 200
+    bytes: 443055
+    verdict: catch-all — every path returns the Stoplight SPA shell, so no 200 on this host is a document
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    note: SPA shell (443219 bytes of HTML), not a document — matches the control probe
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: null
+    note: SPA shell, not a document
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: null
+    note: SPA shell, not a document
+  - path: /.well-known/api-catalog
+    status: 200
+    file: null
+    note: SPA shell, not a document
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    file: null
+    note: SPA shell, not a document
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    note: SPA shell, not a document — rejected as an agent card
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    note: SPA shell, not a document — rejected as an agent card
+- host: https://loopio.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 202
+    file: null
+    note: Sucuri sgcaptcha robot-challenge interstitial (195 bytes), not a document
+  - path: /.well-known/openid-configuration
+    status: 202
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 202
+    file: null
+  - path: /.well-known/api-catalog
+    status: 202
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 202
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 202
+    file: null
+  - path: /.well-known/agent.json
+    status: 202
+    file: null
+- host: https://support.loopio.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404

@@ -1,23 +1,124 @@
 aid: loopio
 name: Loopio
-description: 'Loopio is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: Loopio is a Toronto-based response management platform used by teams to answer RFPs, RFIs,
+  DDQs, and security questionnaires from a governed, reusable content Library. It publishes a public REST
+  API — the Loopio Public API v2 at https://api.loopio.com/data/v2 — documented on a Stoplight developer
+  portal at developer.loopio.com, with a 96-operation OpenAPI 3.0.1 contract covering Library Entries,
+  Projects, Project Entries, Sections and subSections, Custom Project Fields, Merge Variables, Compliance
+  Sets, Project Templates, Stacks, Tags, Teams, Users, Roles, Files, CRM opportunity links, asynchronous
+  task status, and webhook subscriptions. Authentication is OAuth 2.0 client credentials against https://api.loopio.com/oauth2/access_token
+  with 22 in-spec scopes, and the authorization server publishes RFC 8414 and RFC 9728 discovery documents
+  that advertise a wider 51-scope surface including SCIM user/group provisioning and MCP tool/prompt/resource
+  scopes.
+image: https://cdn.loopio.com/cache/8.328.b01/resources/images/favicon.png
 url: https://raw.githubusercontent.com/api-evangelist/loopio/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-25'
 modified: '2026-08-25'
 tags:
 - Company
-apis: []
+- RFP
+- Proposals
+- Response Management
+- Content Library
+- Sales Enablement
+- Questionnaires
+- Compliance
+- Collaboration
+- Documents
+- Webhooks
+- SaaS
+apis:
+- aid: loopio-public-api-v2
+  name: Loopio Public API v2
+  description: The Loopio Public API v2 is a REST API over the Loopio response management platform. It
+    exposes the Library (entries, attachments, history, stacks, tags), Projects (entries, sections, subSections,
+    participants, source documents, compliance sets, custom fields, merge variables, templates), Users,
+    Teams and Roles, Files, CRM opportunity links, asynchronous task polling, and webhook subscriptions
+    for libraryEntry.updated, libraryReview.assigned, project.created and project.statusChanged.
+  humanURL: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - RFP
+  - Response Management
+  - Content Library
+  - Projects
+  - Webhooks
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-openapi.yaml
+  - type: Documentation
+    url: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/loopio-domain-security.yml
+- type: OAuthScopes
+  url: scopes/loopio-scopes.yml
+- type: Authentication
+  url: authentication/loopio-authentication.yml
 - type: Website
-  url: https://www.hiive.com/securities/loopio-stock
+  url: https://loopio.com/
+- type: DeveloperPortal
+  url: https://developer.loopio.com/
+- type: Documentation
+  url: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- type: APIReference
+  url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+- type: GettingStarted
+  url: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- type: Support
+  url: https://support.loopio.com/hc/en-us
+- type: Blog
+  url: https://loopio.com/blog/
+- type: Pricing
+  url: https://loopio.com/pricing/
+- type: TermsOfService
+  url: https://loopio.com/legal/
+- type: PrivacyPolicy
+  url: https://loopio.com/legal/privacy/
+- type: StatusPage
+  url: https://www.loopiostatus.com/
+- type: WellKnown
+  url: well-known/loopio-well-known.yml
+- type: LLMsTxt
+  url: llms/loopio-llms.txt
+- type: Packages
+  url: packages/loopio-packages.yml
+- type: Conventions
+  url: conventions/loopio-conventions.yml
+- type: ErrorCatalog
+  url: errors/loopio-problem-types.yml
+- type: DataModel
+  url: data-model/loopio-data-model.yml
+- type: Lifecycle
+  url: lifecycle/loopio-lifecycle.yml
+- type: Conformance
+  url: conformance/loopio-conformance.yml
+- type: Compliance
+  url: https://loopio.com/legal/compliance-statement/
+- type: Webhooks
+  url: asyncapi/loopio-events-webhooks.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: RateLimits
+  url: rate-limits/loopio-rate-limits.yml
+- type: Plans
+  url: plans/loopio-plans-pricing.yml
+- type: Overlay
+  url: overlays/loopio-openapi-overlay.yaml
+x-enrichment:
+  date: '2026-08-25'
+  status: enriched
+  artifacts_added: 26
+  pass: local-v1

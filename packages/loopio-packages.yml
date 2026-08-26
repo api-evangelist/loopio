@@ -1,0 +1,63 @@
+generated: '2026-08-25'
+method: searched
+source: >-
+  registry.npmjs.org, pypi.org, rubygems.org, packagist.org, nuget.org search APIs, plus the
+  Loopio developer portal (developer.loopio.com)
+official_sdk_count: 0
+package_count: 2
+note: >-
+  Loopio publishes NO first-party client libraries in any public registry. npm, PyPI,
+  RubyGems, Packagist and NuGet were all searched and returned nothing owned by Loopio; the
+  developer portal offers no SDK or download section, and there is no Loopio GitHub
+  organisation (github.com/loopio resolves to an unrelated individual account, "LooPio", and
+  the GitHub org API returns 404). Integrators call the REST API directly with an OAuth 2.0
+  client-credentials token. The two packages recorded below are community work by
+  individuals and are explicitly NOT first party — the more active of the two says so in its
+  own npm description. No SDKs pointer is emitted, because there are no official SDKs.
+packages:
+- language: javascript
+  registry: npm
+  name: loopio-mcp
+  url: https://www.npmjs.com/package/loopio-mcp
+  install: npx -y loopio-mcp
+  official: false
+  version: 0.4.0
+  published: '2026-06-22'
+  first_published: '2026-06-09'
+  repository: https://github.com/fredericboyer/loopio-mcp
+  description: >-
+    Unofficial Model Context Protocol server (stdio and HTTP) for the Loopio Data API v2.
+    The package description states it is "Not affiliated with or endorsed by Loopio Inc."
+- language: javascript
+  registry: npm
+  name: rosemary-charnley-smartbear-loopio-mcp-server
+  url: https://www.npmjs.com/package/rosemary-charnley-smartbear-loopio-mcp-server
+  install: npx -y rosemary-charnley-smartbear-loopio-mcp-server
+  official: false
+  version: 1.0.1
+  published: '2026-01-29'
+  repository: https://github.com/rosemary-charnley-smartbear/Loopio-MCP
+  description: MCP Server (STDIO) for Loopio API — Library Entries management. Personal project of a SmartBear employee.
+registries_searched:
+- registry: npm
+  query: loopio
+  official_hits: 0
+- registry: pypi
+  probed:
+  - loopio
+  - loopio-api
+  - loopio-sdk
+  - python-loopio
+  official_hits: 0
+  note: all four returned HTTP 404
+- registry: rubygems
+  query: loopio
+  official_hits: 0
+  note: empty result set
+- registry: packagist
+  query: loopio
+  official_hits: 0
+  note: only unrelated packages (daverandom/loopio, an event-loop interop library)
+- registry: nuget
+  query: loopio
+  official_hits: 0

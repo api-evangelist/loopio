@@ -31,30 +31,291 @@ tags:
 - Webhooks
 - SaaS
 apis:
-- aid: loopio-public-api-v2
-  name: Loopio Public API v2
-  description: The Loopio Public API v2 is a REST API over the Loopio response management platform. It
-    exposes the Library (entries, attachments, history, stacks, tags), Projects (entries, sections, subSections,
-    participants, source documents, compliance sets, custom fields, merge variables, templates), Users,
-    Teams and Roles, Files, CRM opportunity links, asynchronous task polling, and webhook subscriptions
-    for libraryEntry.updated, libraryReview.assigned, project.created and project.statusChanged.
-  humanURL: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-asynchronous-api
+  name: Loopio Asynchronous API
+  description: An asynchronous endpoint
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
   baseURL: https://api.loopio.com/data/v2
   tags:
-  - RFP
-  - Response Management
-  - Content Library
-  - Projects
-  - Webhooks
+  - Asynchronous
   properties:
   - type: OpenAPI
-    url: openapi/loopio-openapi.yaml
+    url: openapi/loopio-asynchronous-api-openapi.yml
   - type: Documentation
-    url: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
   - type: APIReference
     url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
   - type: GettingStarted
-    url: https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-crm-api
+  name: Loopio CRM API
+  description: The CRM API from Loopio — 2 operation(s) for crm.
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - CRM
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-crm-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-custom-project-fields-api
+  name: Loopio Custom Project Fields API
+  description: Create and manage Custom Project Fields
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Custom Project Fields
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-custom-project-fields-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-customers-api
+  name: Loopio Customers API
+  description: Get information about Customer instances
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Customers
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-customers-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-files-api
+  name: Loopio Files API
+  description: Manage Loopio files
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Files
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-files-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-library-entries-api
+  name: Loopio Library Entries API
+  description: Create and manage Library Entries
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Library Entries
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-library-entries-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-merge-variables-api
+  name: Loopio Merge Variables API
+  description: Reusable Library/Project-wide variables
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Merge Variables
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-merge-variables-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-project-templates-api
+  name: Loopio Project Templates API
+  description: Get Information about Project Templates
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Project Templates
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-project-templates-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-projects-api
+  name: Loopio Projects API
+  description: Create and manage Projects
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Projects
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-projects-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-roles-api
+  name: Loopio Roles API
+  description: The Roles API from Loopio — 2 operation(s) for roles.
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Roles
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-roles-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-stacks-api
+  name: Loopio Stacks API
+  description: View accessible stacks or Library structure
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Stacks
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-stacks-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-tags-api
+  name: Loopio Tags API
+  description: Create and manage Tags
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Tags
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-tags-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-teams-api
+  name: Loopio Teams API
+  description: Get Information about Teams
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Teams
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-teams-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-users-api
+  name: Loopio Users API
+  description: Create and manage Users
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Users
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-users-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+- aid: loopio:loopio-webhooks-api
+  name: Loopio Webhooks API
+  description: Create & Manage webhook subscriptions
+  humanURL: >-
+    https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  baseURL: https://api.loopio.com/data/v2
+  tags:
+  - Webhooks
+  properties:
+  - type: OpenAPI
+    url: openapi/loopio-webhooks-api-openapi.yml
+  - type: Documentation
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
+  - type: APIReference
+    url: https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio
+  - type: GettingStarted
+    url: >-
+      https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com

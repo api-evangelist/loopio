@@ -10,6 +10,18 @@ description: Loopio is a Toronto-based response management platform used by team
   with 22 in-spec scopes, and the authorization server publishes RFC 8414 and RFC 9728 discovery documents
   that advertise a wider 51-scope surface including SCIM user/group provisioning and MCP tool/prompt/resource
   scopes.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://cdn.loopio.com/cache/8.328.b01/resources/images/favicon.png
 url: https://raw.githubusercontent.com/api-evangelist/loopio/refs/heads/main/apis.yml
 x-type: company

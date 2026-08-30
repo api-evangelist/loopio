@@ -1,0 +1,320 @@
+openapi: 3.2.0
+info:
+  title: Loopio Files API
+  description: Loopio's Public API
+  termsOfService: http://loopio.com/termsOfService
+  contact:
+    email: support@loopio.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.loopio.com/data/v2
+  description: Production server for the American datacenter
+- url: https://api.eu.loopio.com/data/v2
+  description: Production server for the European datacenter
+tags:
+- name: Files
+  description: Manage Loopio files
+paths:
+  /files/{fileId}:
+    parameters:
+    - $ref: '#/components/parameters/fileId'
+    get:
+      tags:
+      - Files
+      summary: Show information about a file
+      operationId: showFile
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - file:read
+    delete:
+      tags:
+      - Files
+      summary: Delete a file
+      description: If this file is linked with any other Loopio resources, that link will also be deleted
+      operationId: deleteFile
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - file:delete
+  /projects/{projectId}/sourceDocuments:
+    parameters:
+    - name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      tags:
+      - Files
+      summary: Attach a source document to a Loopio Project
+      description: 'Note: Confidential projects are currently not supported via API.'
+      operationId: addProjectSourceDocument
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                document:
+                  type: string
+                  description: The file to upload.
+                  format: binary
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileId:
+                    type: integer
+                  resourceURI:
+                    type: string
+                    example: /data/v2/files/0
+                required:
+                - fileId
+                - resourceURI
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '503':
+          description: Could not save file
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+      - loopio_auth:
+        - project:write
+    get:
+      tags:
+      - Files
+      summary: View basic information on a Project's source files
+      description: 'Note: Confidential projects are currently not supported via API.'
+      operationId: listProjectSourceDocuments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalItems:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProjectSourceFile'
+                required:
+                - totalItems
+                - totalPages
+                - items
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - project:read
+components:
+  schemas:
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+    ProjectSourceFile:
+      allOf:
+      - $ref: '#/components/schemas/File'
+      - type: object
+        properties:
+          isImportDocument:
+            type: boolean
+            default: false
+        required:
+        - isImportDocument
+    File:
+      type: object
+      properties:
+        id:
+          type: integer
+        filename:
+          type: string
+        fileExtension:
+          type: string
+          example: pdf
+        status:
+          type: string
+          enum:
+          - AVAILABLE
+          - UPLOADING
+          - DELETED
+        size:
+          type: integer
+        creator:
+          $ref: '#/components/schemas/ReferenceLabel'
+        createdDate:
+          type: string
+          format: date-time
+          example: '2019-05-23T15:32:00Z'
+        guid:
+          type: string
+          description: A file's generated unique guid
+          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
+        url:
+          type: string
+          description: A file's generated unique signed s3 url (This link expires after 10 minutes)
+          example: https://www.signedUrl.com
+        lastUpdated:
+          type: string
+          format: date-time
+          deprecated: true
+        lastUpdatedDate:
+          type: string
+          format: date-time
+          example: '2019-05-23T15:32:00Z'
+      required:
+      - filename
+      - status
+      - size
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+  responses:
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '204':
+      description: No Content
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+  parameters:
+    fileId:
+      name: fileId
+      in: path
+      required: true
+      schema:
+        type: integer
+  securitySchemes:
+    loopio_auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions
+        clientCredentials:
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions

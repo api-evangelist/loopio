@@ -1,0 +1,1020 @@
+openapi: 3.2.0
+info:
+  title: Loopio Users API
+  description: Loopio's Public API
+  termsOfService: http://loopio.com/termsOfService
+  contact:
+    email: support@loopio.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.loopio.com/data/v2
+  description: Production server for the American datacenter
+- url: https://api.eu.loopio.com/data/v2
+  description: Production server for the European datacenter
+tags:
+- name: Users
+  description: Create and manage Users
+paths:
+  /businessUnitUsers/bulkAssign:
+    post:
+      tags:
+      - Users
+      summary: bulk assign users to business units
+      operationId: bulkAssignBusinessUnitUsers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                businessUnitIds:
+                  type: array
+                  items:
+                    type: integer
+                userIds:
+                  type: array
+                  items:
+                    type: integer
+              required:
+              - businessUnitIds
+              - userIds
+            example:
+              businessUnitIds:
+              - 1
+              - 2
+              - 3
+              userIds:
+              - 111
+              - 222
+              - 333
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Users assigned to business units successfully
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+      security:
+      - loopio_auth:
+        - businessUnit:write
+  /identify/me:
+    get:
+      tags:
+      - Users
+      summary: Get a User's information from a JWT
+      operationId: identifyUser
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentifyingUserData'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - user:read
+  /users:
+    get:
+      parameters:
+      - name: searchQuery
+        in: query
+        description: Term to search for a User's first or last name, email or Team name.
+        schema:
+          type: string
+          example: Jane
+      - name: types
+        in: query
+        description: The type of Users separated by  ','.
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - REGULAR
+            - LIBRARY
+            - API
+            - PROJECT_CONTRIBUTOR
+            - CONTENT_CONTRIBUTOR
+            - POWER
+            - LITE
+            - GUEST
+        style: form
+        explode: false
+      - name: sortBy
+        in: query
+        description: Sort by this field
+        schema:
+          type: string
+          example: fullName
+          enum:
+          - id
+          - fullName
+          - lastLogin
+      - name: sortDirection
+        in: query
+        description: Sort direction
+        schema:
+          type: string
+          example: asc
+          enum:
+          - asc
+          - desc
+      - name: userStatus
+        in: query
+        description: Filter for these statuses
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - ENABLED
+            - PENDING
+            - DISABLED
+            - LOCKED
+      - name: lastUpdatedDateGt
+        in: query
+        description: Filter for Users updated after this date. Must be in RFC-3339 format.
+        schema:
+          type: string
+          format: date-time
+          example: '2019-05-23T15:32:00Z'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      tags:
+      - Users
+      summary: List Users
+      operationId: listUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalItems:
+                    type: integer
+                    example: 100
+                  totalPages:
+                    type: integer
+                    example: 10
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                required:
+                - totalItems
+                - totalPages
+                - items
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - user:read
+    post:
+      tags:
+      - Users
+      summary: Create a User
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                roleId:
+                  type: number
+                teamIds:
+                  type: array
+                  items:
+                    type: number
+                welcomeMessage:
+                  type: string
+              required:
+              - firstName
+              - lastName
+              - email
+              - roleId
+            example:
+              firstName: User
+              lastName: A
+              email: user.a@example.com
+              roleId: 100
+              teamIds:
+              - 1
+              - 2
+              - 3
+              welcomeMessage: This is a welcome message
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithRoleAndTeams'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+      security:
+      - loopio_auth:
+        - user:write
+  /users/bulk/disableByEmail:
+    post:
+      tags:
+      - Users
+      summary: Bulk disable Users by email
+      description: 'This operation is atomic (either all Users will be successfully disabled or none will). Users are not able to disable themselves.
+
+
+        To protect Customer privacy, emails that are not tied to a User will be ignored rather than treated as an input error.'
+      operationId: bulkUserDisableByEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emails:
+                  type: array
+                  items:
+                    type: string
+                    format: email
+              required:
+              - emails
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - user:write
+  /users/bulk/accountAccessEmail:
+    post:
+      tags:
+      - Users
+      summary: Bulk resend activation email
+      description: Sends a new activation email to the specified pending users. Only users with a **Pending** status will receive an email — users in any other status are returned in the `notApplicable` list and are not treated as errors. Partial success is possible - the response always indicates which IDs succeeded, which failed, and which were not applicable.
+      operationId: bulkResendActivationEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  description: IDs of the users to send activation emails to.
+                  items:
+                    type: integer
+                  example:
+                  - 101
+                  - 202
+                  - 303
+              required:
+              - userIds
+      responses:
+        '200':
+          description: OK — results are returned even when some users failed or were not applicable.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: array
+                    description: IDs of users to whom the activation email was successfully sent.
+                    items:
+                      type: integer
+                  failed:
+                    type: array
+                    description: IDs of users for whom the activation email failed to send.
+                    items:
+                      type: integer
+                  notApplicable:
+                    type: array
+                    description: IDs of users whose status is not Pending — no email was sent to these users.
+                    items:
+                      type: integer
+                required:
+                - success
+                - failed
+                - notApplicable
+              example:
+                success:
+                - 101
+                - 202
+                failed: []
+                notApplicable:
+                - 303
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - user:write
+  /users/bulk/assignRole:
+    post:
+      tags:
+      - Users
+      summary: Bulk assign a Role to Users
+      description: Assigns the provided Role to each of the provided Users. Eligible Users are processed independently — a failure on one User does not affect the others. Users that are not eligible are reported in the `skipped` list with a stable reason code rather than treated as an error. If the requesting User's id is included in `userIds` and they already hold the target Role, they are reported in `skipped` with reason `SELF_ASSIGNMENT` and the rest of the request is still processed.
+      operationId: bulkAssignRole
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  description: IDs of the Users to assign the Role to. Duplicate IDs are deduped.
+                  items:
+                    type: integer
+                    minimum: 1
+                  minItems: 1
+                  maxItems: 1000
+                  example:
+                  - 101
+                  - 202
+                  - 303
+                roleId:
+                  type: integer
+                  description: ID of the Role to assign.
+                  minimum: 1
+                  example: 5
+              required:
+              - userIds
+              - roleId
+      responses:
+        '200':
+          description: OK — results are returned even when some Users failed or were skipped.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: array
+                    description: IDs of Users that were successfully assigned the Role.
+                    items:
+                      type: integer
+                  failed:
+                    type: array
+                    description: IDs of Users for whom the assignment failed (e.g. DB write failure).
+                    items:
+                      type: integer
+                  skipped:
+                    type: array
+                    description: Users that were skipped because they were not eligible. Each entry carries a stable reason code.
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: integer
+                        reason:
+                          type: string
+                          enum:
+                          - SELF_ASSIGNMENT
+                          - NOT_FOUND
+                          - INVALID_USER_TYPE
+                          description: 'Reason the User was skipped:
+
+                            - `SELF_ASSIGNMENT`: The requesting User included their own id and already holds the target Role.
+
+                            - `NOT_FOUND`: User does not exist in this Customer.
+
+                            - `INVALID_USER_TYPE`: User type cannot be assigned a Role (API, Shared Stack Access).'
+                      required:
+                      - userId
+                      - reason
+                required:
+                - success
+                - failed
+                - skipped
+              example:
+                success:
+                - 101
+                - 202
+                failed: []
+                skipped:
+                - userId: 303
+                  reason: SELF_ASSIGNMENT
+                - userId: 404
+                  reason: NOT_FOUND
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - user:write
+  /users/bulk/assignToTeams:
+    post:
+      tags:
+      - Users
+      summary: Bulk assign Users to Teams
+      description: 'Assigns each of the provided Users to all of the provided Teams. Existing Team memberships of the selected Users are **replaced** with the new list — this is not additive.
+
+
+        Eligible Users are processed independently — a failure on one User does not affect the others. Users that are not eligible are reported in the `skipped` list with a stable reason code rather than treated as an error.
+
+
+        The requesting User cannot assign themselves to a Team — if their User id is included in `userIds`, they are reported in `skipped` with reason `SELF_ASSIGNMENT` and the rest of the request is still processed.'
+      operationId: bulkAssignUsersToTeams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  description: IDs of the Users to assign. Duplicate IDs are deduped.
+                  items:
+                    type: integer
+                    minimum: 1
+                  minItems: 1
+                  maxItems: 1000
+                  example:
+                  - 101
+                  - 202
+                  - 303
+                teamIds:
+                  type: array
+                  description: IDs of the Teams to assign the Users to. Duplicate IDs are deduped.
+                  items:
+                    type: integer
+                    minimum: 1
+                  minItems: 1
+                  maxItems: 1000
+                  example:
+                  - 10
+                  - 20
+              required:
+              - userIds
+              - teamIds
+      responses:
+        '200':
+          description: OK — results are returned even when some Users failed or were skipped.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: array
+                    description: IDs of Users that were successfully assigned to the provided Teams.
+                    items:
+                      type: integer
+                  failed:
+                    type: array
+                    description: IDs of Users for whom the assignment failed (e.g. DB write or reindex failure).
+                    items:
+                      type: integer
+                  skipped:
+                    type: array
+                    description: Users that were skipped because they were not eligible. Each entry carries a stable reason code.
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: integer
+                        reason:
+                          type: string
+                          enum:
+                          - SELF_ASSIGNMENT
+                          - NOT_FOUND
+                          - INVALID_USER_TYPE
+                          - NOT_ACTIVE
+                          - LIBRARY_ROLE
+                          description: 'Reason the User was skipped:
+
+                            - `SELF_ASSIGNMENT`: The requesting User included their own id; Users cannot assign themselves to a Team.
+
+                            - `NOT_FOUND`: User does not exist in this Customer.
+
+                            - `INVALID_USER_TYPE`: User type cannot be assigned to a Team (API, Shared Stack Access, Support).
+
+                            - `NOT_ACTIVE`: User is disabled or locked.
+
+                            - `LIBRARY_ROLE`: User has a Library role and cannot belong to a Team.'
+                      required:
+                      - userId
+                      - reason
+                required:
+                - success
+                - failed
+                - skipped
+              example:
+                success:
+                - 101
+                - 202
+                failed: []
+                skipped:
+                - userId: 303
+                  reason: LIBRARY_ROLE
+                - userId: 404
+                  reason: NOT_FOUND
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - user:write
+  /users/bulk/remove:
+    post:
+      tags:
+      - Users
+      summary: Bulk remove Users
+      description: Removes the given Users; a removed User cannot be re-enabled. Users that are not eligible are returned in the `skipped` list with a reason code instead of failing the request.
+      operationId: bulkRemoveUsers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  description: IDs of the Users to remove. Duplicate IDs are deduped.
+                  items:
+                    type: integer
+                    minimum: 1
+                  minItems: 1
+                  maxItems: 1000
+                  example:
+                  - 101
+                  - 202
+                  - 303
+              required:
+              - userIds
+      responses:
+        '200':
+          description: OK — results are returned even when some Users failed or were skipped.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: array
+                    description: IDs of Users that were successfully removed.
+                    items:
+                      type: integer
+                  failed:
+                    type: array
+                    description: IDs of Users whose removal failed (e.g. DB write failure).
+                    items:
+                      type: integer
+                  skipped:
+                    type: array
+                    description: Users that were skipped because they were not eligible. Each entry carries a stable reason code.
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: integer
+                        reason:
+                          type: string
+                          enum:
+                          - SELF_REMOVAL
+                          - CHAMPION
+                          - PENDING_WORK
+                          - ALREADY_REMOVED
+                          - NOT_FOUND
+                          description: 'Reason the User was skipped:
+
+                            - `SELF_REMOVAL`: The requesting User cannot remove their own account.
+
+                            - `CHAMPION`: The Customer''s Loopio Champion cannot be removed.
+
+                            - `PENDING_WORK`: The User still has assigned workflow work.
+
+                            - `ALREADY_REMOVED`: The User has already been removed.
+
+                            - `NOT_FOUND`: User does not exist in this Customer.'
+                      required:
+                      - userId
+                      - reason
+                required:
+                - success
+                - failed
+                - skipped
+              example:
+                success:
+                - 101
+                - 202
+                failed: []
+                skipped:
+                - userId: 303
+                  reason: PENDING_WORK
+                - userId: 404
+                  reason: NOT_FOUND
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - user:write
+  /users/{userId}:
+    parameters:
+    - name: userId
+      in: path
+      description: User Id
+      required: true
+      schema:
+        type: integer
+        example: 111
+    get:
+      tags:
+      - Users
+      summary: Get a User
+      operationId: getUser
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - user:read
+    put:
+      tags:
+      - Users
+      summary: Update a User
+      operationId: updateUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                roleId:
+                  type: integer
+                teamIds:
+                  description: If an empty array is provided the user will be removed from all teams they belong to
+                  type: array
+                  items:
+                    type: integer
+              required:
+              - firstName
+              - lastName
+              - email
+              - roleId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithRoleAndTeams'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      security:
+      - loopio_auth:
+        - user:write
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+          example: 111
+        firstName:
+          type: string
+          description: User's first name
+          example: Jane
+        lastName:
+          type: string
+          description: User's last name
+          example: Doe
+        email:
+          type: string
+          description: User's email
+          example: jane.doe@example.com
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        guid:
+          type: string
+          description: User's generated unique ID
+          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
+        roleId:
+          type: integer
+          description: ID of the User's Role
+          example: 222
+    UserStatus:
+      type: string
+      enum:
+      - ENABLED
+      - DISABLED
+      - PENDING
+      - LOCKED
+    UserWithRoleAndTeams:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+          example: 111
+        firstName:
+          type: string
+          description: User's first name
+          example: Jane
+        lastName:
+          type: string
+          description: User's last name
+          example: Doe
+        email:
+          type: string
+          description: User's email
+          example: jane.doe@example.com
+        guid:
+          type: string
+          description: User's generated unique ID
+          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        roleId:
+          type: integer
+          description: ID of the User's Role
+          example: 100
+        teamIds:
+          type: array
+          items:
+            type: integer
+          description: A list of IDs for the Teams the User belongs to
+          example:
+          - 100
+          - 200
+    IdentifyingUserData:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User Id
+          example: 111
+        customerId:
+          type: integer
+          description: Customer Id
+          example: 11
+        firstName:
+          type: string
+          description: User's first name
+          example: Jane
+        lastName:
+          type: string
+          description: User's last name
+          example: Doe
+        email:
+          type: string
+          description: User's email
+          example: jane.doe@example.com
+        customerName:
+          type: string
+          description: Name of the company to which the User belongs
+          example: Jane Doe Asset Management
+        subdomain:
+          type: string
+          description: User's Loopio customer subdomain
+          example: acmecorp
+        tier:
+          type: string
+          description: The Service Tier for the User's Loopio instance
+          example: Premium
+        activeTimezone:
+          type: string
+          description: The timezone Loopio associates with the User
+          example: America/New_York
+      required:
+      - id
+      - customerId
+      - firstName
+      - lastName
+      - email
+      - customerName
+      - subdomain
+      - tier
+      - activeTimezone
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+  parameters:
+    PageSize:
+      name: pageSize
+      in: query
+      description: The numbers of items to return
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+        default: 10
+      required: false
+    Page:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        example: 5
+        default: 1
+      required: false
+  responses:
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '500':
+      description: Fatal Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: FATAL_ERROR
+            message: Something went wrong
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+  securitySchemes:
+    loopio_auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions
+        clientCredentials:
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions

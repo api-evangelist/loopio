@@ -1,0 +1,233 @@
+openapi: 3.2.0
+info:
+  title: Loopio Teams API
+  description: Loopio's Public API
+  termsOfService: http://loopio.com/termsOfService
+  contact:
+    email: support@loopio.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.loopio.com/data/v2
+  description: Production server for the American datacenter
+- url: https://api.eu.loopio.com/data/v2
+  description: Production server for the European datacenter
+tags:
+- name: Teams
+  description: Get Information about Teams
+paths:
+  /teams:
+    get:
+      parameters:
+      - name: searchQuery
+        in: query
+        required: false
+        schema:
+          type: string
+      tags:
+      - Teams
+      summary: List all teams
+      operationId: listTeams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - user:read
+  /teams/{teamId}:
+    parameters:
+    - name: teamId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      tags:
+      - Teams
+      summary: Get a team's data
+      operationId: getTeam
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamUser'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - user:read
+components:
+  schemas:
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Team Id
+        name:
+          type: string
+          description: Team name
+        description:
+          type:
+          - string
+          - 'null'
+          description: Description
+      example:
+        id: 3
+        name: Engineers
+        description: Employees in the Engineering Department
+    TeamUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Team Id
+        name:
+          type: string
+          description: Team name
+        description:
+          type:
+          - string
+          - 'null'
+          description: Description
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReferenceLabel'
+      example:
+        id: 3
+        name: Engineers
+        description: Employees in the Engineering Department
+        users:
+        - id: 1
+          name: User 1
+        - id: 2
+          name: User 2
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+  responses:
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+  securitySchemes:
+    loopio_auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions
+        clientCredentials:
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions

@@ -1,0 +1,232 @@
+openapi: 3.2.0
+info:
+  title: Loopio CRM API
+  description: Loopio's Public API
+  termsOfService: http://loopio.com/termsOfService
+  contact:
+    email: support@loopio.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.loopio.com/data/v2
+  description: Production server for the American datacenter
+- url: https://api.eu.loopio.com/data/v2
+  description: Production server for the European datacenter
+tags:
+- name: CRM
+paths:
+  /crm/{opportunityID}/projects:
+    parameters:
+    - name: opportunityID
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: crmType
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+        - MS_DYNAMICS
+        - SALESFORCE
+    get:
+      tags:
+      - CRM
+      summary: Get the list of viewable Projects associated with a given CRM Opportunity
+      operationId: listCRMProjects
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projectIDs:
+                    type: array
+                    items:
+                      type: integer
+      security:
+      - loopio_auth:
+        - crm:read
+  /projects/{projectId}/opportunityLink:
+    parameters:
+    - name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      tags:
+      - CRM
+      summary: Link a Loopio Project and CRM Opportunity
+      description: 'Note: Confidential projects are currently not supported via API.'
+      operationId: createOpportunityLink
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - type
+              - opportunityId
+              type: object
+              properties:
+                opportunityId:
+                  description: Accepts a 15 or 18 digit Salesforce ID or a Dynamics UUID
+                  oneOf:
+                  - type: string
+                    pattern: '[a-zA-Z0-9]{18}|[a-zA-Z0-9]{15}'
+                  - type: string
+                    format: uuid
+                  example:
+                  - 123e4567-e89b-12d3-a456-426652340000
+                  - 0063J000002e7A8QAI
+                type:
+                  type: string
+                  enum:
+                  - SALESFORCE
+                  - MS_DYNAMICS
+            examples:
+              Salesforce:
+                value:
+                  type: SALESFORCE
+                  opportunityId: 0063J000002e7A8QAI
+                summary: Salesforce opportunity IDs are 15 or 18 character alphanumeric strings
+              Dynamics:
+                value:
+                  type: MS_DYNAMICS
+                  opportunityId: 123e4567-e89b-12d3-a456-426652340000
+                summary: Microsoft Dynamics opportunity IDs use the UUID format
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projectId:
+                    type: integer
+                  opportunityId:
+                    type: string
+              examples:
+                Salesforce:
+                  value:
+                    projectId: 123
+                    opportunityId: 0063J000002e7A8QAI
+                Dynamics:
+                  value:
+                    projectId: 123
+                    opportunityId: 123e4567-e89b-12d3-a456-426652340000
+        '400':
+          description: Invalid Opportunity
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          $ref: '#/components/responses/403'
+        '422':
+          $ref: '#/components/responses/422'
+      security:
+      - loopio_auth:
+        - crm:write
+components:
+  responses:
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+  schemas:
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+  securitySchemes:
+    loopio_auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions
+        clientCredentials:
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions

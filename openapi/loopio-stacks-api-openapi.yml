@@ -1,0 +1,175 @@
+openapi: 3.2.0
+info:
+  title: Loopio Stacks API
+  description: Loopio's Public API
+  termsOfService: http://loopio.com/termsOfService
+  contact:
+    email: support@loopio.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.loopio.com/data/v2
+  description: Production server for the American datacenter
+- url: https://api.eu.loopio.com/data/v2
+  description: Production server for the European datacenter
+tags:
+- name: Stacks
+  description: View accessible stacks or Library structure
+paths:
+  /stacks:
+    parameters:
+    - name: fields
+      in: query
+      description: Fields included in response
+      schema:
+        type: string
+        enum:
+        - '@wide'
+        example: '@wide'
+    get:
+      tags:
+      - Stacks
+      summary: List accessible stacks; View full Library structure
+      operationId: listStacks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalItems:
+                    type: integer
+                    example: 100
+                  totalPages:
+                    type: integer
+                    example: 10
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Stack'
+                required:
+                - totalItems
+                - totalPages
+                - items
+      security:
+      - loopio_auth:
+        - library:read
+components:
+  schemas:
+    SubCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: SubCategory Id
+        stackID:
+          type: integer
+          description: Stack Id for the Stack it belongs to
+        categoryID:
+          type: integer
+          description: Category Id for the Category it belongs to
+        name:
+          type: string
+          description: SubCategory name
+      example:
+        id: 2
+        stackID: 3
+        categoryID: 5
+        name: Dev Ops
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Category Id
+        stackID:
+          type: integer
+          description: Stack Id for the Stack the Category belongs to
+        name:
+          type: string
+          description: Category name
+        subCategories:
+          type: array
+          description: List of linked subcategories
+          items:
+            $ref: '#/components/schemas/SubCategory'
+      example:
+        id: 5
+        stackID: 3
+        name: Engineering
+    Stack:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Stack Id
+        name:
+          type: string
+          description: Stack name
+        categories:
+          type: array
+          description: List of linked Categories
+          items:
+            $ref: '#/components/schemas/Category'
+      example:
+        id: 3
+        name: Internal Operations
+  securitySchemes:
+    loopio_auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions
+        clientCredentials:
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions

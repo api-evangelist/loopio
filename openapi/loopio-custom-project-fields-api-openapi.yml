@@ -1,0 +1,609 @@
+openapi: 3.2.0
+info:
+  title: Loopio Custom Project Fields API
+  description: Loopio's Public API
+  termsOfService: http://loopio.com/termsOfService
+  contact:
+    email: support@loopio.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.loopio.com/data/v2
+  description: Production server for the American datacenter
+- url: https://api.eu.loopio.com/data/v2
+  description: Production server for the European datacenter
+tags:
+- name: Custom Project Fields
+  description: Create and manage Custom Project Fields
+paths:
+  /projects/{projectId}/customProjectFields:
+    parameters:
+    - name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      tags:
+      - Custom Project Fields
+      summary: Get Custom Project Field values for a given Project
+      description: 'Note: Confidential projects are currently not supported via API.'
+      operationId: getCustomProjectFieldValuesForProject
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomProjectFieldValuesMap'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - project:read
+    patch:
+      tags:
+      - Custom Project Fields
+      summary: Edit Custom Project Field values for a given Project
+      description: 'Note: Confidential projects are currently not supported via API.'
+      operationId: setCustomProjectFieldValuesForProject
+      requestBody:
+        description: '**Notes:**
+
+          - Unlike most PATCH operations in this API, this operation does not use the JSON-Patch format. The request body must take the form of a basic key-value update object, where key is the name of the Custom Project Field. The value of a Custom Project Field cannot be updated to null.
+
+          - When setting a value for a date type Custom Project Field, the value is accepted as a string. To ensure consistent display and reporting, pass dates in ISO 8601 format (e.g., 2026-04-06T15:30:45+05:30). Format validation is not enforced at the API level.
+
+          '
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomProjectFieldPatchValuesMap'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomProjectFieldValuesMap'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+      security:
+      - loopio_auth:
+        - project:write
+  /customProjectFields:
+    get:
+      tags:
+      - Custom Project Fields
+      summary: List defined Custom Project Fields
+      operationId: listCustomProjectFields
+      parameters:
+      - name: source
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/CustomProjectFieldInputSource'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomProjectField'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - customProjectField:read
+    post:
+      tags:
+      - Custom Project Fields
+      summary: Create a new Custom Project Field
+      operationId: createCustomProjectField
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/CustomProjectFieldProjectSourceInput'
+              - $ref: '#/components/schemas/CustomMsDynamicsInputField'
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomProjectField'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '422':
+          $ref: '#/components/responses/422'
+      security:
+      - loopio_auth:
+        - customProjectField:write
+  /customProjectFields/{id}:
+    parameters:
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    get:
+      tags:
+      - Custom Project Fields
+      summary: Get a Custom Project Field
+      operationId: getCustomProjectField
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomProjectField'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - customProjectField:read
+    patch:
+      tags:
+      - Custom Project Fields
+      summary: Update a Custom Project Field
+      operationId: updateCustomProjectField
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                oneOf:
+                - title: Set name
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /name
+                    value:
+                      type: string
+                      maxLength: 40
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Set instructions
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /instructions
+                    value:
+                      type: string
+                      maxLength: 40
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Set isRequired
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /isRequired
+                    value:
+                      type: boolean
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Set dropdown values
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /dropdownValues
+                    value:
+                      type: array
+                      items:
+                        type: string
+                        maxLength: 40
+                      minLength: 1
+                      uniqueItems: true
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Set field type
+                  description: Operation to update dropdownValues is required when updating field type to DROPDOWN
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /fieldType
+                    value:
+                      type: string
+                      default: SHORT_TEXT
+                      enum:
+                      - SHORT_TEXT
+                      - DROPDOWN
+                      - DATE
+                  required:
+                  - op
+                  - path
+                  - value
+              minLength: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomProjectField'
+        '400':
+          $ref: '#/components/responses/InvalidJSONPatchDocument'
+        '403':
+          $ref: '#/components/responses/403'
+        '422':
+          $ref: '#/components/responses/UnprocessableJSONPatchRequest'
+      security:
+      - loopio_auth:
+        - customProjectField:write
+    delete:
+      tags:
+      - Custom Project Fields
+      summary: Delete a Custom Project Field
+      operationId: deleteCustomProjectField
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - customProjectField:delete
+components:
+  schemas:
+    CustomProjectFieldProjectSourceInput:
+      description: Custom Project Field with Project source input
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 40
+        instructions:
+          description: Instructions to the project owner about how this field is intended to be filled out
+          type: string
+          maxLength: 40
+        isRequired:
+          type: boolean
+          default: false
+        fieldType:
+          default: SHORT_TEXT
+          type: string
+          enum:
+          - DROPDOWN
+          - SHORT_TEXT
+          - DATE
+        dropdownValues:
+          description: Required when fieldType is DROPDOWN. Values for the dropdown options.
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          minLength: 1
+      required:
+      - name
+      - fieldType
+    CustomProjectFieldInputSource:
+      type: string
+      enum:
+      - project
+      - salesforce
+      - msDynamics
+    CustomProjectFieldPatchValuesMap:
+      description: A map from Custom Project Field names to values for the patch endpoint request body
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type: string
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
+    CustomProjectField:
+      oneOf:
+      - title: Custom Project Field with Project Source input
+        allOf:
+        - $ref: '#/components/schemas/CustomProjectFieldResponse'
+      - title: Custom Project Field with Salesforce input
+        allOf:
+        - $ref: '#/components/schemas/CustomSalesforceInputField'
+      - title: Custom Project Field with MsDynamics input - IN DEVELOPMENT
+        allOf:
+        - $ref: '#/components/schemas/CustomMsDynamicsInputField'
+    CustomProjectFieldValuesMap:
+      description: A map from Custom Project Field names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type:
+        - string
+        - 'null'
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Uninitialized field: null
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
+    CustomProjectFieldResponse:
+      description: Custom Project Field Project Source Response
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 40
+        source:
+          type: string
+          enum:
+          - project
+        instructions:
+          description: Instructions to the project owner about how this field is intended to be filled out
+          type: string
+          maxLength: 40
+        isRequired:
+          type: boolean
+          default: false
+        fieldType:
+          type: string
+          default: SHORT_TEXT
+          enum:
+          - SHORT_TEXT
+          - DROPDOWN
+          - DATE
+        dropdownValues:
+          description: Required when fieldType is DROPDOWN. Values for the dropdown options.
+          type: array
+          items:
+            type: string
+          minItems: 1
+    CustomSalesforceInputField:
+      description: Custom Project Input Fields with Salesforce sources are available with a connected Salesforce integration
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 40
+        source:
+          type: string
+          enum:
+          - salesforce
+        salesforceField:
+          description: The value from Salesforce that populates this Custom Project Field
+          type: object
+          properties:
+            source:
+              type: string
+              enum:
+              - Account
+              - Opportunity
+            name:
+              type: string
+        instructions:
+          type: string
+          maxLength: 40
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+    CustomMsDynamicsInputField:
+      description: Custom Project Input Fields with MsDynamics sources are available with a connected MsDynamics integration
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 40
+        source:
+          type: string
+          enum:
+          - msDynamics
+        isRequired:
+          type: boolean
+        msDynamicsField:
+          description: The value from MsDynamics that populates this Custom Project Field
+          type: object
+          properties:
+            entity:
+              type: object
+              properties:
+                logicalName:
+                  type: string
+                label:
+                  type: string
+            attribute:
+              type: object
+              properties:
+                logicalName:
+                  type: string
+                label:
+                  type: string
+        instructions:
+          type: string
+          maxLength: 40
+  responses:
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    UnprocessableJSONPatchRequest:
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Invalid operation on path /some/path
+            debugId: 0fas3
+    '204':
+      description: No Content
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
+            debugId: 0fas3
+  securitySchemes:
+    loopio_auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions
+        clientCredentials:
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions

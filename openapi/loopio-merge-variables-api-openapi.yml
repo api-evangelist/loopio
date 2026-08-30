@@ -1,0 +1,730 @@
+openapi: 3.2.0
+info:
+  title: Loopio Merge Variables API
+  description: Loopio's Public API
+  termsOfService: http://loopio.com/termsOfService
+  contact:
+    email: support@loopio.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.loopio.com/data/v2
+  description: Production server for the American datacenter
+- url: https://api.eu.loopio.com/data/v2
+  description: Production server for the European datacenter
+tags:
+- name: Merge Variables
+  description: Reusable Library/Project-wide variables
+paths:
+  /asyncTasks/mergeVariableDelete/{taskId}:
+    parameters:
+    - name: taskId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      tags:
+      - Merge Variables
+      summary: Get the status of Merge Variable deletion request
+      operationId: getMegeVariableDeleteStatus
+      responses:
+        '200':
+          $ref: '#/components/responses/AsyncTaskStatusResponse'
+        '404':
+          $ref: '#/components/responses/404'
+  /mergeVariables:
+    get:
+      tags:
+      - Merge Variables
+      summary: List defined Merge Variables
+      operationId: listMergeVariables
+      parameters:
+      - name: type
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/MergeVariableType'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MergeVariable'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - mergeVariable:read
+    post:
+      tags:
+      - Merge Variables
+      summary: Create a new Merge Variable
+      operationId: createMergeVariable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - title: Library Merge Variable
+                type: object
+                properties:
+                  name:
+                    type: string
+                    maxLength: 64
+                  value:
+                    type:
+                    - string
+                    - 'null'
+                    maxLength: 200
+                  description:
+                    type:
+                    - string
+                    - 'null'
+                    maxLength: 100
+                  type:
+                    type: string
+                    enum:
+                    - library
+                required:
+                - name
+                - value
+                - description
+                - type
+              - title: Project Merge Variable
+                type: object
+                properties:
+                  name:
+                    type: string
+                    maxLength: 64
+                  description:
+                    type:
+                    - string
+                    - 'null'
+                    maxLength: 100
+                  type:
+                    type: string
+                    enum:
+                    - project
+                required:
+                - name
+                - description
+                - type
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeVariable'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '422':
+          $ref: '#/components/responses/422'
+      security:
+      - loopio_auth:
+        - mergeVariable:write
+  /mergeVariables/{id}:
+    parameters:
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    get:
+      tags:
+      - Merge Variables
+      summary: Get a Merge Variable
+      operationId: getMergeVariable
+      parameters:
+      - in: query
+        name: fields
+        description: Fields included in response
+        required: false
+        schema:
+          type: string
+          enum:
+          - '@narrow'
+          - '@wide'
+          default: '@narrow'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - title: '@narrow'
+                  allOf:
+                  - $ref: '#/components/schemas/MergeVariable'
+                - title: '@wide'
+                  allOf:
+                  - $ref: '#/components/schemas/MergeVariableWide'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - mergeVariable:read
+    patch:
+      tags:
+      - Merge Variables
+      summary: Update a Merge Variable
+      operationId: updateMergeVariable
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                oneOf:
+                - title: Set name
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /name
+                    value:
+                      type: string
+                      maxLength: 64
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Set description
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /description
+                    value:
+                      type: string
+                      maxLength: 100
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Set value
+                  description: 'Note: only valid for Library Merge Variables'
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /value
+                    value:
+                      type: string
+                      maxLength: 200
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Convert to a Project Merge Variable
+                  description: 'Note: this will remove the Variable''s current value'
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /value
+                    value:
+                      type: string
+                      maxLength: 200
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Convert to a Project Merge Variable
+                  description: 'Note: this will remove the Variable''s current value'
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - replace
+                    path:
+                      type: string
+                      enum:
+                      - /type
+                    value:
+                      type: string
+                      enum:
+                      - project
+                  required:
+                  - op
+                  - path
+                  - value
+                - title: Convert to a Library Merge Variable
+                  description: 'Note: forces the variable''s type to "library"'
+                  type: object
+                  properties:
+                    op:
+                      type: string
+                      enum:
+                      - add
+                    path:
+                      type: string
+                      enum:
+                      - /value
+                    value:
+                      type: string
+                      maxLength: 200
+                  required:
+                  - op
+                  - path
+                  - value
+              minLength: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeVariable'
+        '400':
+          $ref: '#/components/responses/InvalidJSONPatchDocument'
+        '403':
+          $ref: '#/components/responses/403'
+        '422':
+          $ref: '#/components/responses/UnprocessableJSONPatchRequest'
+      security:
+      - loopio_auth:
+        - mergeVariable:write
+    delete:
+      tags:
+      - Merge Variables
+      summary: Delete a Merge Variable
+      operationId: deleteMergeVariable
+      responses:
+        '202':
+          $ref: '#/components/responses/AsyncTaskAccepted'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - mergeVariable:delete
+  /mergeVariables/{id}/history:
+    parameters:
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    get:
+      tags:
+      - Merge Variables
+      summary: Get a Merge Variable's history
+      operationId: getMergeVariableHistory
+      parameters:
+      - in: query
+        name: ordering
+        description: Return history in ascending or descending order by update time
+        schema:
+          type: string
+          enum:
+          - newestFirst
+          - oldestFirst
+          default: newestFirst
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MergeVariableChange'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - mergeVariable:read
+  /projects/{projectId}/mergeVariables:
+    parameters:
+    - name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      tags:
+      - Merge Variables
+      summary: Get Project Merge Variable values for a Project
+      description: 'Note: Confidential projects are currently not supported via API.'
+      operationId: getMergeVariableValuesForProject
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeVariableProjectValuesMap'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      security:
+      - loopio_auth:
+        - project:read
+        - mergeVariable:read
+    patch:
+      tags:
+      - Merge Variables
+      summary: Edit the values of Project Merge Variables for a Project
+      description: 'Note: Confidential projects are currently not supported via API.'
+      operationId: setMergeVariableValuesForProject
+      requestBody:
+        description: '**Note**: Unlike most PATCH operations in this API, this operation does not use the JSON-Patch format. The request body must take the form of a basic key-value update object'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MergeVariableProjectValuesMap'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeVariableProjectValuesMap'
+        '400':
+          $ref: '#/components/responses/InvalidJSONPatchDocument'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/UnprocessableJSONPatchRequest'
+      security:
+      - loopio_auth:
+        - project:write
+        - mergeVariable:write
+components:
+  schemas:
+    MergeVariableChange:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 64
+        value:
+          description: excluded if type is "project"
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/MergeVariableType'
+        changeDate:
+          type: string
+          format: date-time
+      required:
+      - name
+      - description
+      - type
+      - changeDate
+    MergeVariableProjectValuesMap:
+      description: A map from Merge Variable names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Merge Variable name | not ''Client Name''}'
+        type:
+        - string
+        - 'null'
+        maxLength: 128
+      example:
+        Deal Size: $100000000000000
+        Uninitialized variable: null
+    MergeVariable:
+      oneOf:
+      - title: Library Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableLibrary'
+      - title: Project Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableProject'
+    MergeVariableWide:
+      allOf:
+      - $ref: '#/components/schemas/MergeVariable'
+      - properties:
+          usages:
+            type: object
+            properties:
+              libraryEntries:
+                description: Ids of Library Entries that use this Variable
+                type: array
+                items:
+                  type: integer
+            required:
+            - libraryEntries
+        required:
+        - usages
+    MergeVariableLibrary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 64
+        value:
+          type: string
+          maxLength: 200
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - library
+        createdDate:
+          type: string
+          format: date-time
+        lastUpdatedDate:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - value
+      - description
+      - type
+      - createdDate
+      - lastUpdatedDate
+    MergeVariableType:
+      type: string
+      enum:
+      - library
+      - project
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+    MergeVariableProject:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 64
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - project
+        createdDate:
+          type: string
+          format: date-time
+        lastUpdatedDate:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - description
+      - type
+      - createdDate
+      - lastUpdatedDate
+  responses:
+    AsyncTaskAccepted:
+      description: RECEIVED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: integer
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
+    UnprocessableJSONPatchRequest:
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Invalid operation on path /some/path
+            debugId: 0fas3
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    AsyncTaskStatusResponse:
+      description: Typical status response of an asynchronous task
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum:
+                - PENDING
+                - FAILED
+                - COMPLETE
+              result:
+                type: string
+            required:
+            - status
+          examples:
+            Pending:
+              value:
+                status: PENDING
+            Error:
+              value:
+                status: FAILED
+                result: An unexpected error occurred
+            Complete:
+              value:
+                status: COMPLETE
+                result: Task completed successfully
+  securitySchemes:
+    loopio_auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions
+        clientCredentials:
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions

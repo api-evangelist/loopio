@@ -1,0 +1,497 @@
+openapi: 3.2.0
+info:
+  title: Loopio Asynchronous API
+  description: Loopio's Public API
+  termsOfService: http://loopio.com/termsOfService
+  contact:
+    email: support@loopio.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.loopio.com/data/v2
+  description: Production server for the American datacenter
+- url: https://api.eu.loopio.com/data/v2
+  description: Production server for the European datacenter
+tags:
+- name: Asynchronous
+  description: An asynchronous endpoint
+paths:
+  /libraryEntries/bulk:
+    post:
+      tags:
+      - Asynchronous
+      summary: Bulk create Library Entries
+      description: 'Answer text for an Entry can be null if its Questions have Compliance Answers.
+
+        Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
+      operationId: bulkCreateLibraryEntries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                createMissingLocations:
+                  type: boolean
+                  default: false
+                entries:
+                  type: array
+                  minItems: 1
+                  maxItems: 500
+                  items:
+                    $ref: '#/components/schemas/LibraryEntryBulk'
+              required:
+              - entries
+      responses:
+        '202':
+          $ref: '#/components/responses/AsyncTaskAccepted'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+      security:
+      - loopio_auth:
+        - library:write
+  /asyncTasks/mergeVariableDelete/{taskId}:
+    parameters:
+    - name: taskId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      tags:
+      - Asynchronous
+      summary: Get the status of Merge Variable deletion request
+      operationId: getMegeVariableDeleteStatus
+      responses:
+        '200':
+          $ref: '#/components/responses/AsyncTaskStatusResponse'
+        '404':
+          $ref: '#/components/responses/404'
+  /asyncTasks/{taskId}:
+    parameters:
+    - name: taskId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      tags:
+      - Asynchronous
+      summary: Get the status of a queued async request
+      operationId: getAsyncStatus
+      responses:
+        '200':
+          description: Status of an async request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - PENDING
+                    - FAILED
+                    - COMPLETE
+                  result:
+                    oneOf:
+                    - type: string
+                    - type: object
+                      properties:
+                        entitiesId:
+                          type: array
+                          items:
+                            type: integer
+                        created:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              bulkIndex:
+                                type: integer
+                              entityId:
+                                type: integer
+                        failed:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              bulkIndex:
+                                type: integer
+                              error:
+                                type: string
+                required:
+                - status
+              examples:
+                Pending:
+                  value:
+                    status: PENDING
+                Error:
+                  value:
+                    status: FAILED
+                    result: A bear ate our server
+                Bulk create Library Entries:
+                  value:
+                    status: COMPLETE
+                    result:
+                      entitiesId:
+                      - 1
+                      - 2
+                      - 3
+                      created:
+                      - bulkIndex: 0
+                        entityId: 1
+                      - bulkIndex: 1
+                        entityId: 2
+                      - bulkIndex: 3
+                        entityId: 2
+                      failed:
+                      - bulkIndex: 2
+                        error: Invalid library Location
+        '404':
+          $ref: '#/components/responses/404'
+  /asyncTasks/{taskId}/projectTemplateCopy:
+    parameters:
+    - name: taskId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      tags:
+      - Asynchronous
+      summary: Get the status of a create project from template async task
+      operationId: getProjectTemplateCopyAsyncStatus
+      responses:
+        '200':
+          description: Status of a create project from template async task
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - title: Pending
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                      - PENDING
+                  required:
+                  - status
+                - title: Error
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                      - ERROR
+                    result:
+                      type: string
+                  required:
+                  - status
+                  - result
+                - title: Success
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                      - COMPLETE
+                    result:
+                      $ref: '#/components/schemas/Project'
+                  required:
+                  - status
+                  - result
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  responses:
+    AsyncTaskAccepted:
+      description: RECEIVED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: integer
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
+    AsyncTaskStatusResponse:
+      description: Typical status response of an asynchronous task
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum:
+                - PENDING
+                - FAILED
+                - COMPLETE
+              result:
+                type: string
+            required:
+            - status
+          examples:
+            Pending:
+              value:
+                status: PENDING
+            Error:
+              value:
+                status: FAILED
+                result: An unexpected error occurred
+            Complete:
+              value:
+                status: COMPLETE
+                result: Task completed successfully
+  schemas:
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        projectType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - RFP
+          - RFI
+          - DDQ
+          - SQ
+          - PP
+          - OTHER
+          - null
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - COMPLETE
+          - DELETED
+          - STOPPED
+          - DONE
+          - WON
+          - LOST
+        companyName:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        dueDate:
+          type: string
+          format: date-time
+        owner:
+          $ref: '#/components/schemas/ReferenceLabel'
+        creator:
+          $ref: '#/components/schemas/ReferenceLabel'
+        description:
+          type: string
+    LibraryEntryBulk:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+                description: Question text
+                example: What is Loopio?
+                maxLength: 65535
+              complianceOption:
+                description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
+                type:
+                - object
+                - 'null'
+                properties:
+                  text:
+                    type:
+                    - string
+                    - 'null'
+                    example: 'Yes'
+                    maxLength: 45
+            required:
+            - text
+          minItems: 1
+          description: A question and possible variations which utilize the same answer
+        answer:
+          type: object
+          properties:
+            text:
+              type:
+              - string
+              - 'null'
+              maxLength: 65535
+              example: Loopio is RFP response software
+          required:
+          - text
+        languageCode:
+          $ref: '#/components/schemas/LanguageCode'
+        location:
+          type: object
+          properties:
+            stack:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+              required:
+              - name
+            category:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+              required:
+              - name
+            subCategory:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+              required:
+              - name
+          required:
+          - stack
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+            example: company overview
+      required:
+      - questions
+      - answer
+      - location
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+    LanguageCode:
+      type: string
+      default: en
+      enum:
+      - de
+      - en
+      - es
+      - fr
+      - pt
+      - other
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+  securitySchemes:
+    loopio_auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions
+        clientCredentials:
+          tokenUrl: /oauth2/access_token
+          scopes:
+            mergeVariable:read: View Merge Variables
+            mergeVariable:write: Create/Edit Merge Variables
+            mergeVariable:delete: Delete Merge Variables
+            crm:read: List CRM opportunities linked to projects
+            crm:write: Link CRM opportunities to projects
+            customer.info:read: View customer information
+            file:read: Download files and view file information
+            file:delete: Delete files
+            library:read: List Library Entries and stacks, view Library Entries and Entry data
+            library:write: Create and update Library Entries and Entry data
+            library:delete: Delete Library Entries
+            project:read: List Projects, view Project data and source documents
+            project:write: Create and update Projects, Project data, and source documents
+            project:delete: Delete a Project
+            project.participant:read: List participants of a project
+            project.participant:write: Update participant information
+            role:read: List user assignable roles
+            user:read: List users, view user information
+            user:write: Update user information
+            webhook:read: View webhook subscriptions
+            webhook:write: Create & edit webhook subscriptions
+            webhook:delete: Delete webhook subscriptions

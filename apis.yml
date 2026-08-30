@@ -40,6 +40,19 @@ tags:
 - Compliance
 - Collaboration
 - Documents
+- Webhook
+- Software-as-a-Service
+tags_raw:
+- Company
+- RFP
+- Proposals
+- Response Management
+- Content Library
+- Sales Enablement
+- Questionnaires
+- Compliance
+- Collaboration
+- Documents
 - Webhooks
 - SaaS
 apis:
@@ -126,6 +139,8 @@ apis:
     https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
   baseURL: https://api.loopio.com/data/v2
   tags:
+  - File
+  tags_raw:
   - Files
   properties:
   - type: OpenAPI
@@ -202,6 +217,8 @@ apis:
     https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
   baseURL: https://api.loopio.com/data/v2
   tags:
+  - Project
+  tags_raw:
   - Projects
   properties:
   - type: OpenAPI
@@ -278,6 +295,8 @@ apis:
     https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
   baseURL: https://api.loopio.com/data/v2
   tags:
+  - Team
+  tags_raw:
   - Teams
   properties:
   - type: OpenAPI
@@ -297,6 +316,8 @@ apis:
     https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
   baseURL: https://api.loopio.com/data/v2
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
@@ -316,6 +337,8 @@ apis:
     https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api
   baseURL: https://api.loopio.com/data/v2
   tags:
+  - Webhook
+  tags_raw:
   - Webhooks
   properties:
   - type: OpenAPI

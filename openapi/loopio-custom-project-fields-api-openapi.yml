@@ -302,7 +302,120 @@ paths:
       - loopio_auth:
         - customProjectField:delete
 components:
+  responses:
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
+    UnprocessableJSONPatchRequest:
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Invalid operation on path /some/path
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
+            debugId: 0fas3
+    '204':
+      description: No Content
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
   schemas:
+    CustomProjectFieldValuesMap:
+      description: A map from Custom Project Field names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type:
+        - string
+        - 'null'
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Uninitialized field: null
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
+    CustomMsDynamicsInputField:
+      description: Custom Project Input Fields with MsDynamics sources are available with a connected MsDynamics integration
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 40
+        source:
+          type: string
+          enum:
+          - msDynamics
+        isRequired:
+          type: boolean
+        msDynamicsField:
+          description: The value from MsDynamics that populates this Custom Project Field
+          type: object
+          properties:
+            entity:
+              type: object
+              properties:
+                logicalName:
+                  type: string
+                label:
+                  type: string
+            attribute:
+              type: object
+              properties:
+                logicalName:
+                  type: string
+                label:
+                  type: string
+        instructions:
+          type: string
+          maxLength: 40
     CustomProjectFieldProjectSourceInput:
       description: Custom Project Field with Project source input
       type: object
@@ -340,17 +453,23 @@ components:
       - project
       - salesforce
       - msDynamics
-    CustomProjectFieldPatchValuesMap:
-      description: A map from Custom Project Field names to values for the patch endpoint request body
+    Error:
       type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Custom Project Field name}'
-        type: string
-        maxLength: 100
-      example:
-        Opportunity Url: https://example.com/CRM/opportunity/abc123
-        Amount: '1000'
-        Completed Date: '2026-04-06T15:30:45+05:30'
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
     CustomProjectField:
       oneOf:
       - title: Custom Project Field with Project Source input
@@ -362,20 +481,6 @@ components:
       - title: Custom Project Field with MsDynamics input - IN DEVELOPMENT
         allOf:
         - $ref: '#/components/schemas/CustomMsDynamicsInputField'
-    CustomProjectFieldValuesMap:
-      description: A map from Custom Project Field names to values
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Custom Project Field name}'
-        type:
-        - string
-        - 'null'
-        maxLength: 100
-      example:
-        Opportunity Url: https://example.com/CRM/opportunity/abc123
-        Uninitialized field: null
-        Amount: '1000'
-        Completed Date: '2026-04-06T15:30:45+05:30'
     CustomProjectFieldResponse:
       description: Custom Project Field Project Source Response
       type: object
@@ -409,6 +514,17 @@ components:
           items:
             type: string
           minItems: 1
+    CustomProjectFieldPatchValuesMap:
+      description: A map from Custom Project Field names to values for the patch endpoint request body
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type: string
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
     CustomSalesforceInputField:
       description: Custom Project Input Fields with Salesforce sources are available with a connected Salesforce integration
       type: object
@@ -436,122 +552,6 @@ components:
         instructions:
           type: string
           maxLength: 40
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
-    CustomMsDynamicsInputField:
-      description: Custom Project Input Fields with MsDynamics sources are available with a connected MsDynamics integration
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-          maxLength: 40
-        source:
-          type: string
-          enum:
-          - msDynamics
-        isRequired:
-          type: boolean
-        msDynamicsField:
-          description: The value from MsDynamics that populates this Custom Project Field
-          type: object
-          properties:
-            entity:
-              type: object
-              properties:
-                logicalName:
-                  type: string
-                label:
-                  type: string
-            attribute:
-              type: object
-              properties:
-                logicalName:
-                  type: string
-                label:
-                  type: string
-        instructions:
-          type: string
-          maxLength: 40
-  responses:
-    '422':
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Unable to process request
-            debugId: 0fas3
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
-    UnprocessableJSONPatchRequest:
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Invalid operation on path /some/path
-            debugId: 0fas3
-    '204':
-      description: No Content
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
-    '400':
-      description: Invalid Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Bad request
-            debugId: 0fas3
-    InvalidJSONPatchDocument:
-      description: Invalid JSON-Patch document
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Invalid JSON-Patch document
-            debugId: 0fas3
   securitySchemes:
     loopio_auth:
       type: oauth2

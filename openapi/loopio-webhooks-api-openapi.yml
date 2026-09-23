@@ -42,9 +42,9 @@ paths:
       tags:
       - Webhooks
       summary: Create a new event subscription (new webhook)
-      description: 'Callback URL validation as described [here](https://support.loopio.com/hc/en-us/articles/4404035824147-How-Do-I-Validate-My-Webhook-URL-) will occur automatically as part of this request.
+      description: 'Callback URL validation as described here will occur automatically as part of this request.
 
-        Help with handling webhook callback requests can be found [here](https://support.loopio.com/hc/en-us/articles/4404035409555-What-Information-is-in-a-Webhook-Event-Notification-)'
+        Help with handling webhook callback requests can be found here'
       operationId: createWebhookSubscription
       requestBody:
         required: true
@@ -274,46 +274,6 @@ components:
           responses:
             '200':
               description: OK
-    ProjectStatusUpdated:
-      '{$request.body#/webhookUrl}':
-        post:
-          summary: Project Status Updated
-          description: Sent whenever a Project status has been updated
-          parameters:
-          - $ref: '#/components/parameters/WebhookContentSignature'
-          - $ref: '#/components/parameters/WebhookTimestamp'
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    event:
-                      type: string
-                      enum:
-                      - project.statusChanged
-                    context:
-                      type: object
-                      properties:
-                        projectId:
-                          type: number
-                        status:
-                          type: string
-                          enum:
-                          - ACTIVE
-                          - COMPLETE
-                          - DELETED
-                          - STOPPED
-                          - DONE
-                          - WON
-                          - LOST
-                  required:
-                  - event
-                  - payload
-          responses:
-            '200':
-              description: OK
     LibraryReviewAssigned:
       '{$request.body#/webhookUrl}':
         post:
@@ -378,6 +338,46 @@ components:
           responses:
             '200':
               description: OK
+    ProjectStatusUpdated:
+      '{$request.body#/webhookUrl}':
+        post:
+          summary: Project Status Updated
+          description: Sent whenever a Project status has been updated
+          parameters:
+          - $ref: '#/components/parameters/WebhookContentSignature'
+          - $ref: '#/components/parameters/WebhookTimestamp'
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    event:
+                      type: string
+                      enum:
+                      - project.statusChanged
+                    context:
+                      type: object
+                      properties:
+                        projectId:
+                          type: number
+                        status:
+                          type: string
+                          enum:
+                          - ACTIVE
+                          - COMPLETE
+                          - DELETED
+                          - STOPPED
+                          - DONE
+                          - WON
+                          - LOST
+                  required:
+                  - event
+                  - payload
+          responses:
+            '200':
+              description: OK
   parameters:
     WebhookTimestamp:
       in: header
@@ -386,12 +386,6 @@ components:
       schema:
         type: integer
       required: true
-    SubscriptionId:
-      name: subscriptionId
-      in: path
-      required: true
-      schema:
-        type: integer
     WebhookContentSignature:
       in: header
       name: X-Loopio-Content-Signature
@@ -399,31 +393,46 @@ components:
       schema:
         type: string
       required: true
+    SubscriptionId:
+      name: subscriptionId
+      in: path
+      required: true
+      schema:
+        type: integer
+  responses:
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    '204':
+      description: No Content
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
   schemas:
-    SubscribableEvent:
-      type: string
-      enum:
-      - libraryEntry.updated
-      - libraryReview.assigned
-      - project.statusChanged
-      - project.created
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
     WebhookSubscription:
       type: object
       properties:
@@ -457,39 +466,30 @@ components:
       - events
       - status
       - creator
-  responses:
-    '400':
-      description: Invalid Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Bad request
-            debugId: 0fas3
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
-    '204':
-      description: No Content
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
+    SubscribableEvent:
+      type: string
+      enum:
+      - libraryEntry.updated
+      - libraryReview.assigned
+      - project.statusChanged
+      - project.created
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
   securitySchemes:
     loopio_auth:
       type: oauth2

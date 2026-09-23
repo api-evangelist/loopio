@@ -137,16 +137,6 @@ paths:
         - crm:write
 components:
   responses:
-    '422':
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Unable to process request
-            debugId: 0fas3
     '403':
       description: No Permission
       content:
@@ -156,6 +146,16 @@ components:
           example:
             name: NO_PERMISSION
             message: No permission to access the resource
+            debugId: 0fas3
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
             debugId: 0fas3
   schemas:
     Error:

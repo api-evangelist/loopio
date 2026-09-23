@@ -79,27 +79,6 @@ paths:
       - loopio_auth:
         - project:read
 components:
-  parameters:
-    PageSize:
-      name: pageSize
-      in: query
-      description: The numbers of items to return
-      schema:
-        type: integer
-        minimum: 1
-        example: 10
-        default: 10
-      required: false
-    Page:
-      name: page
-      in: query
-      description: Page number
-      schema:
-        type: integer
-        minimum: 1
-        example: 5
-        default: 1
-      required: false
   schemas:
     ProjectTemplate:
       type: object
@@ -133,6 +112,27 @@ components:
           type: string
         debugId:
           type: string
+  parameters:
+    PageSize:
+      name: pageSize
+      in: query
+      description: The numbers of items to return
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+        default: 10
+      required: false
+    Page:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        example: 5
+        default: 1
+      required: false
   responses:
     '403':
       description: No Permission

@@ -143,15 +143,6 @@ paths:
         - project:read
 components:
   schemas:
-    ReferenceLabel:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: name
     ProjectSourceFile:
       allOf:
       - $ref: '#/components/schemas/File'
@@ -162,6 +153,32 @@ components:
             default: false
         required:
         - isImportDocument
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
     File:
       type: object
       properties:
@@ -206,46 +223,14 @@ components:
       - filename
       - status
       - size
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
+  parameters:
+    fileId:
+      name: fileId
+      in: path
+      required: true
+      schema:
+        type: integer
   responses:
-    '400':
-      description: Invalid Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Bad request
-            debugId: 0fas3
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
-    '204':
-      description: No Content
     '404':
       description: Resource Not Found
       content:
@@ -256,13 +241,28 @@ components:
             name: RESOURCE_NOT_FOUND
             message: Resource not found
             debugId: 0fas3
-  parameters:
-    fileId:
-      name: fileId
-      in: path
-      required: true
-      schema:
-        type: integer
+    '204':
+      description: No Content
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
   securitySchemes:
     loopio_auth:
       type: oauth2

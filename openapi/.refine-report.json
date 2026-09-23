@@ -1,0 +1,50 @@
+{
+  "provider": "loopio",
+  "sources": [
+    "_original/loopio-openapi.yaml"
+  ],
+  "outputs": [
+    "loopio-asynchronous-api-openapi.yml",
+    "loopio-crm-api-openapi.yml",
+    "loopio-custom-project-fields-api-openapi.yml",
+    "loopio-customers-api-openapi.yml",
+    "loopio-files-api-openapi.yml",
+    "loopio-library-entries-api-openapi.yml",
+    "loopio-merge-variables-api-openapi.yml",
+    "loopio-project-templates-api-openapi.yml",
+    "loopio-projects-api-openapi.yml",
+    "loopio-roles-api-openapi.yml",
+    "loopio-stacks-api-openapi.yml",
+    "loopio-tags-api-openapi.yml",
+    "loopio-teams-api-openapi.yml",
+    "loopio-users-api-openapi.yml",
+    "loopio-webhooks-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "loopio-openapi.yaml: upgraded openapi 3.0.1 -> OpenAPI 3.2.0",
+    "loopio-openapi.yaml: declared missing tag: CRM",
+    "loopio-openapi.yaml: declared missing tag: Roles",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "loopio-asynchronous-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-crm-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-custom-project-fields-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-customers-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-files-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-library-entries-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-merge-variables-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-project-templates-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-projects-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-roles-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-stacks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-tags-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-teams-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-users-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "loopio-webhooks-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

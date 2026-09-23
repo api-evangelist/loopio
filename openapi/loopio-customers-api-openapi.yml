@@ -73,16 +73,6 @@ paths:
         - customer.info:read
 components:
   responses:
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
     '404':
       description: Resource Not Found
       content:
@@ -93,7 +83,42 @@ components:
             name: RESOURCE_NOT_FOUND
             message: Resource not found
             debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+  parameters:
+    customerId:
+      name: customerId
+      in: path
+      description: Customer Id
+      required: true
+      schema:
+        type: integer
   schemas:
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
     Language:
       type: object
       properties:
@@ -120,31 +145,6 @@ components:
         shortLanguageCode:
           type: string
           example: en
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
-  parameters:
-    customerId:
-      name: customerId
-      in: path
-      description: Customer Id
-      required: true
-      schema:
-        type: integer
   securitySchemes:
     loopio_auth:
       type: oauth2

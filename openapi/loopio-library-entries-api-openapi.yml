@@ -378,6 +378,8 @@ paths:
       security:
       - loopio_auth:
         - library:delete
+      summary: Delete library entry
+      x-summary-source: derived
   /libraryEntries/{libraryEntryId}/attachments:
     parameters:
     - name: libraryEntryId
@@ -488,9 +490,7 @@ paths:
 
         specified Library Entry. Image attachments can only be replaced with images, and non-image
 
-        attachments can only be replaced with non-image files.
-
-        '
+        attachments can only be replaced with non-image files.'
       operationId: replaceLibraryEntryAttachment
       requestBody:
         required: true
@@ -552,9 +552,7 @@ paths:
       tags:
       - Library Entries
       summary: Delete an attachment from a Library Entry
-      description: 'Removes an attachment from a Library Entry. If the file is not referenced by any other Library Entry, it is permanently deleted.
-
-        '
+      description: Removes an attachment from a Library Entry. If the file is not referenced by any other Library Entry, it is permanently deleted.
       operationId: deleteLibraryEntryAttachment
       responses:
         '204':
@@ -645,9 +643,57 @@ paths:
       - loopio_auth:
         - library:read
 components:
+  parameters:
+    PageSize:
+      name: pageSize
+      in: query
+      description: The numbers of items to return
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+        default: 10
+      required: false
+    Page:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        example: 5
+        default: 1
+      required: false
   responses:
-    '204':
-      description: No Content
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
+            debugId: 0fas3
+    AsyncTaskAccepted:
+      description: RECEIVED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: integer
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
     '400':
       description: Invalid Request
       content:
@@ -668,25 +714,6 @@ components:
             name: UNPROCESSABLE_REQUEST
             message: Invalid operation on path /some/path
             debugId: 0fas3
-    InvalidJSONPatchDocument:
-      description: Invalid JSON-Patch document
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Invalid JSON-Patch document
-            debugId: 0fas3
-    AsyncTaskAccepted:
-      description: RECEIVED
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              taskId:
-                type: integer
     '404':
       description: Resource Not Found
       content:
@@ -697,74 +724,167 @@ components:
             name: RESOURCE_NOT_FOUND
             message: Resource not found
             debugId: 0fas3
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
+    '204':
+      description: No Content
   schemas:
-    LanguageCode:
-      type: string
-      default: en
-      enum:
-      - de
-      - en
-      - es
-      - fr
-      - pt
-      - other
-    Footnote:
-      type: object
+    LibraryEntryOwner:
+      type:
+      - object
+      - 'null'
       properties:
         id:
           type: integer
-          description: Footnote Id
-        text:
+          example: 1
+        name:
           type: string
-          description: Footnote text
-      example:
-        id: 124
-        name: Loopio Inc is based in Toronto, Canada
-    LibraryEntryHistory:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Library Entry History Id
-          example: 1234
-        previousHistoryId:
-          type:
-          - integer
-          - 'null'
-          description: Previous Library Entry History Id
-          example: 1111
-        user:
-          type: string
-          description: The user who made the change
           example: John Doe
-        createdDate:
+        initials:
           type: string
-          format: date-time
-          example: '2019-05-23T15:32:00Z'
-        type:
+          example: JD
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+    Error:
+      type: object
+      properties:
+        name:
           type: string
           enum:
-          - REVIEW_UPDATE
-          - UPDATE
-          - CREATE
-          - RESTORE
-          description: The type of the history item
-          example: CREATE
-        description:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
           type: string
-          example: created Entry
-        libraryEntry:
-          $ref: '#/components/schemas/LibraryEntry'
+        debugId:
+          type: string
+    LibraryEntryBulk:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+                description: Question text
+                example: What is Loopio?
+                maxLength: 65535
+              complianceOption:
+                description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
+                type:
+                - object
+                - 'null'
+                properties:
+                  text:
+                    type:
+                    - string
+                    - 'null'
+                    example: 'Yes'
+                    maxLength: 45
+            required:
+            - text
+          minItems: 1
+          description: A question and possible variations which utilize the same answer
+        answer:
+          type: object
+          properties:
+            text:
+              type:
+              - string
+              - 'null'
+              maxLength: 65535
+              example: Loopio is RFP response software
+          required:
+          - text
+        languageCode:
+          $ref: '#/components/schemas/LanguageCode'
+        location:
+          type: object
+          properties:
+            stack:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+              required:
+              - name
+            category:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+              required:
+              - name
+            subCategory:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+              required:
+              - name
+          required:
+          - stack
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+            example: company overview
+      required:
+      - questions
+      - answer
+      - location
+    DateTimeRangeFilter:
+      type: object
+      minProperties: 1
+      example:
+        gte: '2020-01-01T00:00:00Z'
+      maxProperties: 2
+      additionalProperties: false
+      properties:
+        eq:
+          type: string
+          format: date-time
+          description: Equals to
+        gt:
+          type: string
+          format: date-time
+          description: Greater than
+        gte:
+          type: string
+          format: date-time
+          description: Greater than or equals to
+        lt:
+          type: string
+          format: date-time
+          description: Less than
+        lte:
+          type: string
+          format: date-time
+          description: Less than or equals to
+    InlineImage:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        url:
+          type: string
+          example: example/inline/image/url
     LibraryEntryAttachmentUploadResponse:
       type: object
       properties:
@@ -823,71 +943,6 @@ components:
       - filename
       - status
       - size
-    LibraryEntryOwner:
-      type:
-      - object
-      - 'null'
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: John Doe
-        initials:
-          type: string
-          example: JD
-    LibrarySearchOptions:
-      type: object
-      properties:
-        lastUpdatedDate:
-          $ref: '#/components/schemas/DateTimeRangeFilter'
-        language:
-          type: string
-          example: en
-        locations:
-          type: array
-          items:
-            $ref: '#/components/schemas/LibraryLocation'
-        searchQuery:
-          type: string
-          example: What is Loopio?
-        synonyms:
-          type: boolean
-          example: true
-          description: Allow searching for synonyms of searchQuery terms.
-        exactPhrase:
-          type: boolean
-          example: false
-          description: All searchQuery terms must be present in the given order.
-        hasAttachment:
-          type: boolean
-          example: true
-          description: Search for Entries with one or more Attachments
-        searchInQuestions:
-          type: boolean
-          default: true
-          example: false
-          description: Search within Entry Question text.
-        searchInAnswers:
-          type: boolean
-          default: true
-          example: false
-          description: Search within Entry Answer text.
-        searchInTags:
-          type: boolean
-          default: true
-          example: false
-          description: Search within Entry Tags.
-      example:
-        lastUpdatedDate:
-          gte: '2020-01-01T00:00:00Z'
-          locations:
-          - stackID: 2
-            categoryID: 5
-          searchQuery: What is Loopio?
-          language: en
-      minProperties: 1
     NullableReferenceLabel:
       type:
       - object
@@ -899,6 +954,43 @@ components:
         name:
           type: string
           example: name
+    JsonPath:
+      type: string
+    LibraryEntryHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Library Entry History Id
+          example: 1234
+        previousHistoryId:
+          type:
+          - integer
+          - 'null'
+          description: Previous Library Entry History Id
+          example: 1111
+        user:
+          type: string
+          description: The user who made the change
+          example: John Doe
+        createdDate:
+          type: string
+          format: date-time
+          example: '2019-05-23T15:32:00Z'
+        type:
+          type: string
+          enum:
+          - REVIEW_UPDATE
+          - UPDATE
+          - CREATE
+          - RESTORE
+          description: The type of the history item
+          example: CREATE
+        description:
+          type: string
+          example: created Entry
+        libraryEntry:
+          $ref: '#/components/schemas/LibraryEntry'
     LibraryLocation:
       type: object
       properties:
@@ -920,66 +1012,18 @@ components:
         stackID: 3
         categoryID: 5
         subCategoryID: 2
-    InlineImage:
+    Footnote:
       type: object
       properties:
         id:
           type: integer
-          example: 123
-        url:
-          type: string
-          example: example/inline/image/url
-    Question:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Question Id
-          example: 632
+          description: Footnote Id
         text:
           type: string
-          description: Question text
-          example: What is Loopio?
-        complianceOption:
-          description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
-          type:
-          - object
-          - 'null'
-          properties:
-            id:
-              type: integer
-              example: 1
-            text:
-              type: string
-              example: 'Yes'
-    ReferenceLabel:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: name
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
-    JsonPath:
-      type: string
+          description: Footnote text
+      example:
+        id: 124
+        name: Loopio Inc is based in Toronto, Canada
     LibraryEntry:
       type: object
       properties:
@@ -1158,115 +1202,90 @@ components:
                 allOf:
                 - description: A JSON Pointer path pointing to the location to move/copy from.
                 - $ref: '#/components/schemas/JsonPath'
-    DateTimeRangeFilter:
-      type: object
-      minProperties: 1
-      example:
-        gte: '2020-01-01T00:00:00Z'
-      maxProperties: 2
-      additionalProperties: false
-      properties:
-        eq:
-          type: string
-          format: date-time
-          description: Equals to
-        gt:
-          type: string
-          format: date-time
-          description: Greater than
-        gte:
-          type: string
-          format: date-time
-          description: Greater than or equals to
-        lt:
-          type: string
-          format: date-time
-          description: Less than
-        lte:
-          type: string
-          format: date-time
-          description: Less than or equals to
-    LibraryEntryBulk:
+    Question:
       type: object
       properties:
-        questions:
-          type: array
-          items:
-            type: object
-            properties:
-              text:
-                type: string
-                description: Question text
-                example: What is Loopio?
-                maxLength: 65535
-              complianceOption:
-                description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
-                type:
-                - object
-                - 'null'
-                properties:
-                  text:
-                    type:
-                    - string
-                    - 'null'
-                    example: 'Yes'
-                    maxLength: 45
-            required:
-            - text
-          minItems: 1
-          description: A question and possible variations which utilize the same answer
-        answer:
-          type: object
+        id:
+          type: integer
+          description: Question Id
+          example: 632
+        text:
+          type: string
+          description: Question text
+          example: What is Loopio?
+        complianceOption:
+          description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
+          type:
+          - object
+          - 'null'
           properties:
+            id:
+              type: integer
+              example: 1
             text:
-              type:
-              - string
-              - 'null'
-              maxLength: 65535
-              example: Loopio is RFP response software
-          required:
-          - text
-        languageCode:
-          $ref: '#/components/schemas/LanguageCode'
-        location:
-          type: object
-          properties:
-            stack:
-              type: object
-              properties:
-                name:
-                  type: string
-                  maxLength: 64
-              required:
-              - name
-            category:
-              type: object
-              properties:
-                name:
-                  type: string
-                  maxLength: 100
-              required:
-              - name
-            subCategory:
-              type: object
-              properties:
-                name:
-                  type: string
-                  maxLength: 100
-              required:
-              - name
-          required:
-          - stack
-        tags:
+              type: string
+              example: 'Yes'
+    LanguageCode:
+      type: string
+      default: en
+      enum:
+      - de
+      - en
+      - es
+      - fr
+      - pt
+      - other
+    LibrarySearchOptions:
+      type: object
+      properties:
+        lastUpdatedDate:
+          $ref: '#/components/schemas/DateTimeRangeFilter'
+        language:
+          type: string
+          example: en
+        locations:
           type: array
           items:
-            type: string
-            maxLength: 100
-            example: company overview
-      required:
-      - questions
-      - answer
-      - location
+            $ref: '#/components/schemas/LibraryLocation'
+        searchQuery:
+          type: string
+          example: What is Loopio?
+        synonyms:
+          type: boolean
+          example: true
+          description: Allow searching for synonyms of searchQuery terms.
+        exactPhrase:
+          type: boolean
+          example: false
+          description: All searchQuery terms must be present in the given order.
+        hasAttachment:
+          type: boolean
+          example: true
+          description: Search for Entries with one or more Attachments
+        searchInQuestions:
+          type: boolean
+          default: true
+          example: false
+          description: Search within Entry Question text.
+        searchInAnswers:
+          type: boolean
+          default: true
+          example: false
+          description: Search within Entry Answer text.
+        searchInTags:
+          type: boolean
+          default: true
+          example: false
+          description: Search within Entry Tags.
+      example:
+        lastUpdatedDate:
+          gte: '2020-01-01T00:00:00Z'
+          locations:
+          - stackID: 2
+            categoryID: 5
+          searchQuery: What is Loopio?
+          language: en
+      minProperties: 1
     Answer:
       type: object
       properties:
@@ -1279,27 +1298,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Footnote'
-  parameters:
-    PageSize:
-      name: pageSize
-      in: query
-      description: The numbers of items to return
-      schema:
-        type: integer
-        minimum: 1
-        example: 10
-        default: 10
-      required: false
-    Page:
-      name: page
-      in: query
-      description: Page number
-      schema:
-        type: integer
-        minimum: 1
-        example: 5
-        default: 1
-      required: false
   securitySchemes:
     loopio_auth:
       type: oauth2

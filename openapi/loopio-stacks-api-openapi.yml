@@ -60,26 +60,6 @@ paths:
         - library:read
 components:
   schemas:
-    SubCategory:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: SubCategory Id
-        stackID:
-          type: integer
-          description: Stack Id for the Stack it belongs to
-        categoryID:
-          type: integer
-          description: Category Id for the Category it belongs to
-        name:
-          type: string
-          description: SubCategory name
-      example:
-        id: 2
-        stackID: 3
-        categoryID: 5
-        name: Dev Ops
     Category:
       type: object
       properties:
@@ -118,6 +98,26 @@ components:
       example:
         id: 3
         name: Internal Operations
+    SubCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: SubCategory Id
+        stackID:
+          type: integer
+          description: Stack Id for the Stack it belongs to
+        categoryID:
+          type: integer
+          description: Category Id for the Category it belongs to
+        name:
+          type: string
+          description: SubCategory name
+      example:
+        id: 2
+        stackID: 3
+        categoryID: 5
+        name: Dev Ops
   securitySchemes:
     loopio_auth:
       type: oauth2

@@ -68,38 +68,7 @@ components:
         example: 5
         default: 1
       required: false
-  responses:
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
   schemas:
-    TagsPaginated:
-      type: object
-      properties:
-        totalItems:
-          type: integer
-          description: Total number of tags matching the search criteria
-          example: 25
-        totalPages:
-          type: integer
-          description: Total number of pages
-          example: 5
-        items:
-          type: array
-          description: List of tags for the current page
-          items:
-            $ref: '#/components/schemas/Tag'
-      required:
-      - totalItems
-      - totalPages
-      - items
     Tag:
       type: object
       properties:
@@ -143,6 +112,37 @@ components:
           type: string
         debugId:
           type: string
+    TagsPaginated:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          description: Total number of tags matching the search criteria
+          example: 25
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 5
+        items:
+          type: array
+          description: List of tags for the current page
+          items:
+            $ref: '#/components/schemas/Tag'
+      required:
+      - totalItems
+      - totalPages
+      - items
+  responses:
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
   securitySchemes:
     loopio_auth:
       type: oauth2

@@ -426,32 +426,114 @@ paths:
         - project:write
         - mergeVariable:write
 components:
+  responses:
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
+    UnprocessableJSONPatchRequest:
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Invalid operation on path /some/path
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    AsyncTaskAccepted:
+      description: RECEIVED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: integer
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
+            debugId: 0fas3
+    AsyncTaskStatusResponse:
+      description: Typical status response of an asynchronous task
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum:
+                - PENDING
+                - FAILED
+                - COMPLETE
+              result:
+                type: string
+            required:
+            - status
+          examples:
+            Pending:
+              value:
+                status: PENDING
+            Error:
+              value:
+                status: FAILED
+                result: An unexpected error occurred
+            Complete:
+              value:
+                status: COMPLETE
+                result: Task completed successfully
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
   schemas:
-    MergeVariableChange:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 64
-        value:
-          description: excluded if type is "project"
-          type:
-          - string
-          - 'null'
-          maxLength: 255
-        description:
-          type: string
-          maxLength: 100
-        type:
-          $ref: '#/components/schemas/MergeVariableType'
-        changeDate:
-          type: string
-          format: date-time
-      required:
-      - name
-      - description
-      - type
-      - changeDate
+    MergeVariable:
+      oneOf:
+      - title: Library Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableLibrary'
+      - title: Project Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableProject'
     MergeVariableProjectValuesMap:
       description: A map from Merge Variable names to values
       type: object
@@ -464,14 +546,6 @@ components:
       example:
         Deal Size: $100000000000000
         Uninitialized variable: null
-    MergeVariable:
-      oneOf:
-      - title: Library Variable
-        allOf:
-        - $ref: '#/components/schemas/MergeVariableLibrary'
-      - title: Project Variable
-        allOf:
-        - $ref: '#/components/schemas/MergeVariableProject'
     MergeVariableWide:
       allOf:
       - $ref: '#/components/schemas/MergeVariable'
@@ -488,6 +562,58 @@ components:
             - libraryEntries
         required:
         - usages
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+    MergeVariableType:
+      type: string
+      enum:
+      - library
+      - project
+    MergeVariableProject:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 64
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - project
+        createdDate:
+          type: string
+          format: date-time
+        lastUpdatedDate:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - description
+      - type
+      - createdDate
+      - lastUpdatedDate
     MergeVariableLibrary:
       type: object
       properties:
@@ -522,157 +648,31 @@ components:
       - type
       - createdDate
       - lastUpdatedDate
-    MergeVariableType:
-      type: string
-      enum:
-      - library
-      - project
-    Error:
+    MergeVariableChange:
       type: object
       properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
-    MergeVariableProject:
-      type: object
-      properties:
-        id:
-          type: integer
         name:
           type: string
           maxLength: 64
-        description:
+        value:
+          description: excluded if type is "project"
           type:
           - string
           - 'null'
+          maxLength: 255
+        description:
+          type: string
           maxLength: 100
         type:
-          type: string
-          enum:
-          - project
-        createdDate:
-          type: string
-          format: date-time
-        lastUpdatedDate:
+          $ref: '#/components/schemas/MergeVariableType'
+        changeDate:
           type: string
           format: date-time
       required:
-      - id
       - name
       - description
       - type
-      - createdDate
-      - lastUpdatedDate
-  responses:
-    AsyncTaskAccepted:
-      description: RECEIVED
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              taskId:
-                type: integer
-    '400':
-      description: Invalid Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Bad request
-            debugId: 0fas3
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
-    '422':
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Unable to process request
-            debugId: 0fas3
-    UnprocessableJSONPatchRequest:
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Invalid operation on path /some/path
-            debugId: 0fas3
-    InvalidJSONPatchDocument:
-      description: Invalid JSON-Patch document
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Invalid JSON-Patch document
-            debugId: 0fas3
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
-    AsyncTaskStatusResponse:
-      description: Typical status response of an asynchronous task
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              status:
-                type: string
-                enum:
-                - PENDING
-                - FAILED
-                - COMPLETE
-              result:
-                type: string
-            required:
-            - status
-          examples:
-            Pending:
-              value:
-                status: PENDING
-            Error:
-              value:
-                status: FAILED
-                result: An unexpected error occurred
-            Complete:
-              value:
-                status: COMPLETE
-                result: Task completed successfully
+      - changeDate
   securitySchemes:
     loopio_auth:
       type: oauth2

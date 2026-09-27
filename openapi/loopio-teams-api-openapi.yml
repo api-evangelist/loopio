@@ -74,6 +74,16 @@ paths:
         - user:read
 components:
   responses:
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
     '404':
       description: Resource Not Found
       content:
@@ -94,44 +104,7 @@ components:
             name: NO_PERMISSION
             message: No permission to access the resource
             debugId: 0fas3
-    '400':
-      description: Invalid Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Bad request
-            debugId: 0fas3
   schemas:
-    Team:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Team Id
-        name:
-          type: string
-          description: Team name
-        description:
-          type:
-          - string
-          - 'null'
-          description: Description
-      example:
-        id: 3
-        name: Engineers
-        description: Employees in the Engineering Department
-    ReferenceLabel:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: name
     TeamUser:
       type: object
       properties:
@@ -159,6 +132,33 @@ components:
           name: User 1
         - id: 2
           name: User 2
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Team Id
+        name:
+          type: string
+          description: Team name
+        description:
+          type:
+          - string
+          - 'null'
+          description: Description
+      example:
+        id: 3
+        name: Engineers
+        description: Employees in the Engineering Department
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
     Error:
       type: object
       properties:

@@ -1703,7 +1703,169 @@ paths:
         '404':
           $ref: '#/components/responses/404'
 components:
+  parameters:
+    PageSize:
+      name: pageSize
+      in: query
+      description: The numbers of items to return
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+        default: 10
+      required: false
+    RequiredProjectId:
+      name: projectId
+      in: query
+      schema:
+        type: integer
+      required: true
+    ProjectEntryId:
+      name: projectEntryId
+      in: path
+      required: true
+      schema:
+        type: integer
+    QueryParamInlineOptions:
+      name: inline[]
+      in: query
+      required: false
+      description: '@imagePlaceholders will substitute relative URLs in img src attributes with placeholders that contain the corresponding file ID. (e.g. __INLINE_IMAGE_SOURCE__123456)'
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - '@imagePlaceholders'
+      style: form
+      explode: true
+    QueryParamSectionId:
+      name: sectionId
+      in: query
+      description: Section Id
+      required: false
+      schema:
+        type: integer
+        example: 1
+    SectionId:
+      name: sectionId
+      in: path
+      required: true
+      schema:
+        type: integer
+    Owners:
+      name: owners
+      in: query
+      schema:
+        type: array
+        items:
+          type: integer
+      description: This will accept multiple owners PK to filter the result
+      required: false
+    Page:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        example: 5
+        default: 1
+      required: false
+    RfxTypes:
+      name: rfxTypes
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - RFP
+          - RFI
+          - DDQ
+          - SQ
+          - PP
+          - OTHER
+      description: This will accept multiple project types values to filter the result
+      required: false
+    QueryParamSubSectionId:
+      name: subSectionId
+      in: query
+      description: SubSection Id
+      required: false
+      schema:
+        type: integer
+        example: 1
+    SubSectionId:
+      name: subSectionId
+      in: path
+      required: true
+      schema:
+        type: integer
   schemas:
+    ComplianceSet:
+      type: object
+      description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
+      properties:
+        id:
+          type: integer
+        project:
+          type: object
+          properties:
+            id:
+              type: integer
+          required:
+          - id
+        label:
+          type: string
+        shortName:
+          type: string
+          minLength: 1
+        options:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                minLength: 1
+            required:
+            - label
+      required:
+      - id
+      - project
+      - label
+      - shortName
+      - options
+    CustomProjectFieldValuesMap:
+      description: A map from Custom Project Field names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type:
+        - string
+        - 'null'
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Uninitialized field: null
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
+    ProjectEntryAttachmentUploadResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The file version ID of the attachment.
+          example: 12607774
+        filename:
+          type: string
+          description: The full filename including extension.
+          example: blank.pdf
+      required:
+      - id
+      - filename
     ProjectSectionWide:
       type: object
       properties:
@@ -1724,73 +1886,176 @@ components:
       - name
       - subSections
       - questions
-    MergeVariableProjectValuesMap:
-      description: A map from Merge Variable names to values
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Merge Variable name | not ''Client Name''}'
-        type:
-        - string
-        - 'null'
-        maxLength: 128
-      example:
-        Deal Size: $100000000000000
-        Uninitialized variable: null
-    ReferenceLabel:
+    CreateProjectRequestBody:
       type: object
       properties:
-        id:
-          type: integer
-          example: 1
         name:
           type: string
-          example: name
-    Error:
-      type: object
-      properties:
-        name:
+          maxLength: 255
+          example: Project ABC
+        projectType:
+          $ref: '#/components/schemas/ProjectType'
+        description:
+          type:
+          - string
+          - 'null'
+        companyName:
+          type: string
+          maxLength: 255
+        dueDate:
+          type: string
+          format: date-time
+          example: '2020-06-08T15:39:04Z'
+          description: The input datetime will be converted to UTC and then pushed to end of day.
+        createdType:
           type: string
           enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
-    ProjectEntryAttachmentUploadResponse:
+          - BLANK
+          - TEMPLATE
+          - COPY_OUTLINE
+          - CHROME_EXTENSION
+          - SALESFORCE
+          - MS_DYNAMICS
+          - MS_EXCEL_ADDIN
+        owner:
+          type: object
+          properties:
+            id:
+              type: integer
+          required:
+          - id
+          description: The owner of the Project. If not specified, the user creating the project will be the owner.
+        customProjectFieldValues:
+          description: A value map for any Custom Project Fields. Missing fields will be set to null. Only fields with "project" as their information source can be set.
+          type: object
+          additionalProperties:
+            x-additionalPropertiesName: '{Custom Project Field name}'
+            type:
+            - string
+            - 'null'
+            maxLength: 100
+        mergeVariableValues:
+          description: A value map for any existing Project Merge Variables. Missing variables will be set to null.
+          type: object
+          additionalProperties:
+            x-additionalPropertiesName: '{Merge Variable name}'
+            type: string
+            maxLength: 128
+          default: {}
+          example:
+            Client Name: Acme Co.
+            Deal Size: $100000000000000
+      required:
+      - name
+      - companyName
+      - dueDate
+      - projectType
+    Project:
       type: object
       properties:
         id:
           type: integer
-          description: The file version ID of the attachment.
+        name:
+          type: string
+        projectType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - RFP
+          - RFI
+          - DDQ
+          - SQ
+          - PP
+          - OTHER
+          - null
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - COMPLETE
+          - DELETED
+          - STOPPED
+          - DONE
+          - WON
+          - LOST
+        companyName:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        dueDate:
+          type: string
+          format: date-time
+        owner:
+          $ref: '#/components/schemas/ReferenceLabel'
+        creator:
+          $ref: '#/components/schemas/ReferenceLabel'
+        description:
+          type: string
+    Section:
+      type: object
+      properties:
+        id:
+          type: integer
+        project:
+          type: object
+          properties:
+            id:
+              type: integer
+        name:
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - project
+      - name
+    ProjectEntryAttachment:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The file version id (fileVersionId) of the attachment. Use this value when replacing or deleting the attachment.
           example: 12607774
         filename:
           type: string
-          description: The full filename including extension.
           example: blank.pdf
+        status:
+          type: string
+          enum:
+          - AVAILABLE
+        size:
+          type: integer
+          description: File size in bytes
+          example: 4911
+        fileExtension:
+          type: string
+          example: pdf
+        guid:
+          type: string
+          description: A file's generated unique guid
+          example: b6ab11b9deffabdd45dec8ae322e04d8
+        url:
+          type: string
+          description: A file's generated unique signed s3 url (This link expires after 10 minutes)
+          example: https://www.signedUrl.com
+        creator:
+          $ref: '#/components/schemas/ReferenceLabel'
+        lastUpdated:
+          type: string
+          format: date-time
+          example: '2026-04-28T07:08:00+00:00'
       required:
       - id
       - filename
-    ProjectSubSectionWide:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        questions:
-          type: array
-          items:
-            $ref: '#/components/schemas/EntryNoProjectId'
-      required:
-      - id
-      - name
-      - questions
+      - status
+      - size
+      - fileExtension
+      - guid
+      - url
+      - creator
+      - lastUpdated
     EntryComplianceAnswerCollection:
       description: 'If provided, the `complianceAnswers` object will replace the current Compliance Answers.
 
@@ -1818,6 +2083,47 @@ components:
             type:
             - string
             - 'null'
+    CustomProjectFieldPatchValuesMap:
+      description: A map from Custom Project Field names to values for the patch endpoint request body
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type: string
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
+    ParticipantReference:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - USER
+          - TEAM
+          example: USER
+        id:
+          type: integer
+          example: 1
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - COLLABORATOR
+          - ASSIGNEE
+          example: ADMIN
+        email:
+          type:
+          - string
+          - 'null'
+          format: email
+          example: user@example.com
+          description: Email address when type=USER; null/omitted for TEAM.
+        name:
+          type: string
+          example: John Doe
+          description: User's full name when type=USER; team name when type=TEAM.
     ComplianceOption:
       type: object
       description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
@@ -1828,7 +2134,188 @@ components:
           maxLength: 65535
       required:
       - label
-    Section:
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+    File:
+      type: object
+      properties:
+        id:
+          type: integer
+        filename:
+          type: string
+        fileExtension:
+          type: string
+          example: pdf
+        status:
+          type: string
+          enum:
+          - AVAILABLE
+          - UPLOADING
+          - DELETED
+        size:
+          type: integer
+        creator:
+          $ref: '#/components/schemas/ReferenceLabel'
+        createdDate:
+          type: string
+          format: date-time
+          example: '2019-05-23T15:32:00Z'
+        guid:
+          type: string
+          description: A file's generated unique guid
+          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
+        url:
+          type: string
+          description: A file's generated unique signed s3 url (This link expires after 10 minutes)
+          example: https://www.signedUrl.com
+        lastUpdated:
+          type: string
+          format: date-time
+          deprecated: true
+        lastUpdatedDate:
+          type: string
+          format: date-time
+          example: '2019-05-23T15:32:00Z'
+      required:
+      - filename
+      - status
+      - size
+    ProjectDocument:
+      type: object
+      properties:
+        file:
+          $ref: '#/components/schemas/ReferenceLabel'
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectSectionWide'
+      required:
+      - file
+      - sections
+    EntryNoProjectId:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 65535
+        answer:
+          type:
+          - object
+          - 'null'
+          properties:
+            text:
+              type:
+              - string
+              - 'null'
+              minLength: 1
+              maxLength: 65535
+            complianceAnswers:
+              description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  label:
+                    type: string
+                  option:
+                    type:
+                    - string
+                    - 'null'
+                required:
+                - id
+                - label
+                - option
+          required:
+          - text
+          - complianceAnswers
+      required:
+      - id
+      - question
+      - answer
+    ProjectWide:
+      allOf:
+      - $ref: '#/components/schemas/Project'
+      - type: object
+        properties:
+          documents:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectDocument'
+          sections:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectSectionWide'
+        required:
+        - documents
+        - sections
+    MergeVariableProjectValuesMap:
+      description: A map from Merge Variable names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Merge Variable name | not ''Client Name''}'
+        type:
+        - string
+        - 'null'
+        maxLength: 128
+      example:
+        Deal Size: $100000000000000
+        Uninitialized variable: null
+    ProjectType:
+      type: string
+      enum:
+      - RFP
+      - RFI
+      - DDQ
+      - SQ
+      - PP
+      - OTHER
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+    ProjectSubSectionWide:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntryNoProjectId'
+      required:
+      - id
+      - name
+      - questions
+    SubSection:
       type: object
       properties:
         id:
@@ -1838,6 +2325,15 @@ components:
           properties:
             id:
               type: integer
+          required:
+          - id
+        section:
+          type: object
+          properties:
+            id:
+              type: integer
+          required:
+          - id
         name:
           type:
           - string
@@ -1845,7 +2341,77 @@ components:
       required:
       - id
       - project
+      - section
       - name
+    UserOrTeamReference:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - USER
+          - TEAM
+          example: USER
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+        email:
+          type:
+          - string
+          - 'null'
+          format: email
+          example: user@example.com
+          description: Email address when type=USER; null/omitted for TEAM.
+    ProjectSourceFile:
+      allOf:
+      - $ref: '#/components/schemas/File'
+      - type: object
+        properties:
+          isImportDocument:
+            type: boolean
+            default: false
+        required:
+        - isImportDocument
+    Entry:
+      allOf:
+      - $ref: '#/components/schemas/EntryNoProjectId'
+      - properties:
+          inlineImages:
+            type: array
+            items:
+              type: string
+          project:
+            type: object
+            properties:
+              id:
+                type: integer
+            required:
+            - id
+          section:
+            type: object
+            properties:
+              id:
+                type: integer
+            required:
+            - id
+          subSection:
+            type: object
+            properties:
+              id:
+                type:
+                - integer
+                - 'null'
+            required:
+            - id
+          assignee:
+            $ref: '#/components/schemas/UserOrTeamReference'
+          reviewer:
+            $ref: '#/components/schemas/UserOrTeamReference'
+      required:
+      - project
     ProjectSummary:
       type: object
       properties:
@@ -1959,636 +2525,22 @@ components:
           total: 10
           left: -2
           elapsed: 12
-    ProjectType:
-      type: string
-      enum:
-      - RFP
-      - RFI
-      - DDQ
-      - SQ
-      - PP
-      - OTHER
-    File:
-      type: object
-      properties:
-        id:
-          type: integer
-        filename:
-          type: string
-        fileExtension:
-          type: string
-          example: pdf
-        status:
-          type: string
-          enum:
-          - AVAILABLE
-          - UPLOADING
-          - DELETED
-        size:
-          type: integer
-        creator:
-          $ref: '#/components/schemas/ReferenceLabel'
-        createdDate:
-          type: string
-          format: date-time
-          example: '2019-05-23T15:32:00Z'
-        guid:
-          type: string
-          description: A file's generated unique guid
-          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
-        url:
-          type: string
-          description: A file's generated unique signed s3 url (This link expires after 10 minutes)
-          example: https://www.signedUrl.com
-        lastUpdated:
-          type: string
-          format: date-time
-          deprecated: true
-        lastUpdatedDate:
-          type: string
-          format: date-time
-          example: '2019-05-23T15:32:00Z'
-      required:
-      - filename
-      - status
-      - size
-    CustomProjectFieldPatchValuesMap:
-      description: A map from Custom Project Field names to values for the patch endpoint request body
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Custom Project Field name}'
-        type: string
-        maxLength: 100
-      example:
-        Opportunity Url: https://example.com/CRM/opportunity/abc123
-        Amount: '1000'
-        Completed Date: '2026-04-06T15:30:45+05:30'
-    ParticipantReference:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - USER
-          - TEAM
-          example: USER
-        id:
-          type: integer
-          example: 1
-        role:
-          type: string
-          enum:
-          - ADMIN
-          - COLLABORATOR
-          - ASSIGNEE
-          example: ADMIN
-        email:
-          type:
-          - string
-          - 'null'
-          format: email
-          example: user@example.com
-          description: Email address when type=USER; null/omitted for TEAM.
-        name:
-          type: string
-          example: John Doe
-          description: User's full name when type=USER; team name when type=TEAM.
-    Project:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        projectType:
-          type:
-          - string
-          - 'null'
-          enum:
-          - RFP
-          - RFI
-          - DDQ
-          - SQ
-          - PP
-          - OTHER
-          - null
-        status:
-          type: string
-          enum:
-          - ACTIVE
-          - COMPLETE
-          - DELETED
-          - STOPPED
-          - DONE
-          - WON
-          - LOST
-        companyName:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        dueDate:
-          type: string
-          format: date-time
-        owner:
-          $ref: '#/components/schemas/ReferenceLabel'
-        creator:
-          $ref: '#/components/schemas/ReferenceLabel'
-        description:
-          type: string
-    ProjectDocument:
-      type: object
-      properties:
-        file:
-          $ref: '#/components/schemas/ReferenceLabel'
-        sections:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProjectSectionWide'
-      required:
-      - file
-      - sections
-    ProjectEntryAttachment:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: The file version id (fileVersionId) of the attachment. Use this value when replacing or deleting the attachment.
-          example: 12607774
-        filename:
-          type: string
-          example: blank.pdf
-        status:
-          type: string
-          enum:
-          - AVAILABLE
-        size:
-          type: integer
-          description: File size in bytes
-          example: 4911
-        fileExtension:
-          type: string
-          example: pdf
-        guid:
-          type: string
-          description: A file's generated unique guid
-          example: b6ab11b9deffabdd45dec8ae322e04d8
-        url:
-          type: string
-          description: A file's generated unique signed s3 url (This link expires after 10 minutes)
-          example: https://www.signedUrl.com
-        creator:
-          $ref: '#/components/schemas/ReferenceLabel'
-        lastUpdated:
-          type: string
-          format: date-time
-          example: '2026-04-28T07:08:00+00:00'
-      required:
-      - id
-      - filename
-      - status
-      - size
-      - fileExtension
-      - guid
-      - url
-      - creator
-      - lastUpdated
-    Entry:
-      allOf:
-      - $ref: '#/components/schemas/EntryNoProjectId'
-      - properties:
-          inlineImages:
-            type: array
-            items:
-              type: string
-          project:
-            type: object
-            properties:
-              id:
-                type: integer
-            required:
-            - id
-          section:
-            type: object
-            properties:
-              id:
-                type: integer
-            required:
-            - id
-          subSection:
-            type: object
-            properties:
-              id:
-                type:
-                - integer
-                - 'null'
-            required:
-            - id
-          assignee:
-            $ref: '#/components/schemas/UserOrTeamReference'
-          reviewer:
-            $ref: '#/components/schemas/UserOrTeamReference'
-      required:
-      - project
-    UserOrTeamReference:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - USER
-          - TEAM
-          example: USER
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: name
-        email:
-          type:
-          - string
-          - 'null'
-          format: email
-          example: user@example.com
-          description: Email address when type=USER; null/omitted for TEAM.
-    ProjectSourceFile:
-      allOf:
-      - $ref: '#/components/schemas/File'
-      - type: object
-        properties:
-          isImportDocument:
-            type: boolean
-            default: false
-        required:
-        - isImportDocument
-    SubSection:
-      type: object
-      properties:
-        id:
-          type: integer
-        project:
-          type: object
-          properties:
-            id:
-              type: integer
-          required:
-          - id
-        section:
-          type: object
-          properties:
-            id:
-              type: integer
-          required:
-          - id
-        name:
-          type:
-          - string
-          - 'null'
-      required:
-      - id
-      - project
-      - section
-      - name
-    CustomProjectFieldValuesMap:
-      description: A map from Custom Project Field names to values
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Custom Project Field name}'
-        type:
-        - string
-        - 'null'
-        maxLength: 100
-      example:
-        Opportunity Url: https://example.com/CRM/opportunity/abc123
-        Uninitialized field: null
-        Amount: '1000'
-        Completed Date: '2026-04-06T15:30:45+05:30'
-    ProjectWide:
-      allOf:
-      - $ref: '#/components/schemas/Project'
-      - type: object
-        properties:
-          documents:
-            type: array
-            items:
-              $ref: '#/components/schemas/ProjectDocument'
-          sections:
-            type: array
-            items:
-              $ref: '#/components/schemas/ProjectSectionWide'
-        required:
-        - documents
-        - sections
-    CreateProjectRequestBody:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          example: Project ABC
-        projectType:
-          $ref: '#/components/schemas/ProjectType'
-        description:
-          type:
-          - string
-          - 'null'
-        companyName:
-          type: string
-          maxLength: 255
-        dueDate:
-          type: string
-          format: date-time
-          example: '2020-06-08T15:39:04Z'
-          description: The input datetime will be converted to UTC and then pushed to end of day.
-        createdType:
-          type: string
-          enum:
-          - BLANK
-          - TEMPLATE
-          - COPY_OUTLINE
-          - CHROME_EXTENSION
-          - SALESFORCE
-          - MS_DYNAMICS
-          - MS_EXCEL_ADDIN
-        owner:
-          type: object
-          properties:
-            id:
-              type: integer
-          required:
-          - id
-          description: The owner of the Project. If not specified, the user creating the project will be the owner.
-        customProjectFieldValues:
-          description: A value map for any Custom Project Fields. Missing fields will be set to null. Only fields with "project" as their information source can be set.
-          type: object
-          additionalProperties:
-            x-additionalPropertiesName: '{Custom Project Field name}'
-            type:
-            - string
-            - 'null'
-            maxLength: 100
-        mergeVariableValues:
-          description: A value map for any existing Project Merge Variables. Missing variables will be set to null.
-          type: object
-          additionalProperties:
-            x-additionalPropertiesName: '{Merge Variable name}'
-            type: string
-            maxLength: 128
-          default: {}
-          example:
-            Client Name: Acme Co.
-            Deal Size: $100000000000000
-      required:
-      - name
-      - companyName
-      - dueDate
-      - projectType
-    EntryNoProjectId:
-      type: object
-      properties:
-        id:
-          type: integer
-        question:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 65535
-        answer:
-          type:
-          - object
-          - 'null'
-          properties:
-            text:
-              type:
-              - string
-              - 'null'
-              minLength: 1
-              maxLength: 65535
-            complianceAnswers:
-              description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  label:
-                    type: string
-                  option:
-                    type:
-                    - string
-                    - 'null'
-                required:
-                - id
-                - label
-                - option
-          required:
-          - text
-          - complianceAnswers
-      required:
-      - id
-      - question
-      - answer
-    ComplianceSet:
-      type: object
-      description: 'Note: we are making terminology updates in Loopio - Compliance Sets shall be referred to as Answer Sets. The API will be updated to reflect this change at a later time.'
-      properties:
-        id:
-          type: integer
-        project:
-          type: object
-          properties:
-            id:
-              type: integer
-          required:
-          - id
-        label:
-          type: string
-        shortName:
-          type: string
-          minLength: 1
-        options:
-          type: array
-          minItems: 1
-          items:
-            type: object
-            properties:
-              label:
-                type: string
-                minLength: 1
-            required:
-            - label
-      required:
-      - id
-      - project
-      - label
-      - shortName
-      - options
-  parameters:
-    PageSize:
-      name: pageSize
-      in: query
-      description: The numbers of items to return
-      schema:
-        type: integer
-        minimum: 1
-        example: 10
-        default: 10
-      required: false
-    QueryParamInlineOptions:
-      name: inline[]
-      in: query
-      required: false
-      description: '@imagePlaceholders will substitute relative URLs in img src attributes with placeholders that contain the corresponding file ID. (e.g. __INLINE_IMAGE_SOURCE__123456)'
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - '@imagePlaceholders'
-      style: form
-      explode: true
-    Page:
-      name: page
-      in: query
-      description: Page number
-      schema:
-        type: integer
-        minimum: 1
-        example: 5
-        default: 1
-      required: false
-    ProjectEntryId:
-      name: projectEntryId
-      in: path
-      required: true
-      schema:
-        type: integer
-    SubSectionId:
-      name: subSectionId
-      in: path
-      required: true
-      schema:
-        type: integer
-    SectionId:
-      name: sectionId
-      in: path
-      required: true
-      schema:
-        type: integer
-    QueryParamSubSectionId:
-      name: subSectionId
-      in: query
-      description: SubSection Id
-      required: false
-      schema:
-        type: integer
-        example: 1
-    RequiredProjectId:
-      name: projectId
-      in: query
-      schema:
-        type: integer
-      required: true
-    Owners:
-      name: owners
-      in: query
-      schema:
-        type: array
-        items:
-          type: integer
-      description: This will accept multiple owners PK to filter the result
-      required: false
-    RfxTypes:
-      name: rfxTypes
-      in: query
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - RFP
-          - RFI
-          - DDQ
-          - SQ
-          - PP
-          - OTHER
-      description: This will accept multiple project types values to filter the result
-      required: false
-    QueryParamSectionId:
-      name: sectionId
-      in: query
-      description: Section Id
-      required: false
-      schema:
-        type: integer
-        example: 1
-  responses:
-    InvalidJSONPatchDocument:
-      description: Invalid JSON-Patch document
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Invalid JSON-Patch document
-            debugId: 0fas3
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
-    '400':
-      description: Invalid Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Bad request
-            debugId: 0fas3
-    '422':
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Unable to process request
-            debugId: 0fas3
-    UnprocessableJSONPatchRequest:
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Invalid operation on path /some/path
-            debugId: 0fas3
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
-    '204':
-      description: No Content
   examples:
+    ProjectNarrow:
+      value:
+        id: 9
+        name: Project
+        status: ACTIVE
+        companyName: Company
+        createdDate: '2020-01-01T00:00:00Z'
+        dueDate: '2020-01-01T00:00:00Z'
+        owner:
+          id: 100
+          name: John Doe
+        creator:
+          id: 101
+          name: Jane Doe
+        description: An example project
     ProjectWide:
       value:
         id: 9
@@ -2657,21 +2609,69 @@ components:
           - id: 4
             question: Why was 6 afraid of 7?
             answer: null
-    ProjectNarrow:
-      value:
-        id: 9
-        name: Project
-        status: ACTIVE
-        companyName: Company
-        createdDate: '2020-01-01T00:00:00Z'
-        dueDate: '2020-01-01T00:00:00Z'
-        owner:
-          id: 100
-          name: John Doe
-        creator:
-          id: 101
-          name: Jane Doe
-        description: An example project
+  responses:
+    '204':
+      description: No Content
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
+    UnprocessableJSONPatchRequest:
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Invalid operation on path /some/path
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
+            debugId: 0fas3
   securitySchemes:
     loopio_auth:
       type: oauth2

@@ -95,23 +95,6 @@ components:
         createdByUserID: 12345
         createdDate: '2021-03-08T15:50:00Z'
         lastUpdatedDate: '2021-03-09T10:35:00Z'
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
     TagsPaginated:
       type: object
       properties:
@@ -132,6 +115,23 @@ components:
       - totalItems
       - totalPages
       - items
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
   responses:
     '403':
       description: No Permission

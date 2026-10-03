@@ -72,6 +72,50 @@ paths:
       - loopio_auth:
         - customer.info:read
 components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+    Language:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: English
+        languageCode:
+          type: string
+          enum:
+          - da-DK
+          - de-DE
+          - en-US
+          - es-ES
+          - fi-FI
+          - fr-FR
+          - it-IT
+          - nl-NL
+          - pt-PT
+          - ru-RU
+          - sv-SE
+          - other
+        shortLanguageCode:
+          type: string
+          example: en
   parameters:
     customerId:
       name: customerId
@@ -101,50 +145,6 @@ components:
             name: NO_PERMISSION
             message: No permission to access the resource
             debugId: 0fas3
-  schemas:
-    Language:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-          example: English
-        languageCode:
-          type: string
-          enum:
-          - da-DK
-          - de-DE
-          - en-US
-          - es-ES
-          - fi-FI
-          - fr-FR
-          - it-IT
-          - nl-NL
-          - pt-PT
-          - ru-RU
-          - sv-SE
-          - other
-        shortLanguageCode:
-          type: string
-          example: en
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
   securitySchemes:
     loopio_auth:
       type: oauth2

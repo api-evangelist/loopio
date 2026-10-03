@@ -751,28 +751,36 @@ paths:
       - loopio_auth:
         - user:write
 components:
-  parameters:
-    PageSize:
-      name: pageSize
-      in: query
-      description: The numbers of items to return
-      schema:
-        type: integer
-        minimum: 1
-        example: 10
-        default: 10
-      required: false
-    Page:
-      name: page
-      in: query
-      description: Page number
-      schema:
-        type: integer
-        minimum: 1
-        example: 5
-        default: 1
-      required: false
   schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+          example: 111
+        firstName:
+          type: string
+          description: User's first name
+          example: Jane
+        lastName:
+          type: string
+          description: User's last name
+          example: Doe
+        email:
+          type: string
+          description: User's email
+          example: jane.doe@example.com
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        guid:
+          type: string
+          description: User's generated unique ID
+          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
+        roleId:
+          type: integer
+          description: ID of the User's Role
+          example: 222
     UserWithRoleAndTeams:
       type: object
       properties:
@@ -810,35 +818,23 @@ components:
           example:
           - 100
           - 200
-    User:
+    Error:
       type: object
       properties:
-        id:
-          type: integer
-          description: User ID
-          example: 111
-        firstName:
+        name:
           type: string
-          description: User's first name
-          example: Jane
-        lastName:
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
           type: string
-          description: User's last name
-          example: Doe
-        email:
+        debugId:
           type: string
-          description: User's email
-          example: jane.doe@example.com
-        status:
-          $ref: '#/components/schemas/UserStatus'
-        guid:
-          type: string
-          description: User's generated unique ID
-          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
-        roleId:
-          type: integer
-          description: ID of the User's Role
-          example: 222
     IdentifyingUserData:
       type: object
       properties:
@@ -895,24 +891,17 @@ components:
       - DISABLED
       - PENDING
       - LOCKED
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
   responses:
+    '500':
+      description: Fatal Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: FATAL_ERROR
+            message: Something went wrong
+            debugId: 0fas3
     '422':
       description: Unprocessable Request
       content:
@@ -922,16 +911,6 @@ components:
           example:
             name: UNPROCESSABLE_REQUEST
             message: Unable to process request
-            debugId: 0fas3
-    '400':
-      description: Invalid Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Bad request
             debugId: 0fas3
     '404':
       description: Resource Not Found
@@ -943,6 +922,16 @@ components:
             name: RESOURCE_NOT_FOUND
             message: Resource not found
             debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
     '403':
       description: No Permission
       content:
@@ -953,16 +942,27 @@ components:
             name: NO_PERMISSION
             message: No permission to access the resource
             debugId: 0fas3
-    '500':
-      description: Fatal Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: FATAL_ERROR
-            message: Something went wrong
-            debugId: 0fas3
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        example: 5
+        default: 1
+      required: false
+    PageSize:
+      name: pageSize
+      in: query
+      description: The numbers of items to return
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+        default: 10
+      required: false
   securitySchemes:
     loopio_auth:
       type: oauth2

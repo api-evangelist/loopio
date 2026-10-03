@@ -461,6 +461,23 @@ components:
       - type
       - createdDate
       - lastUpdatedDate
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
     MergeVariableProject:
       type: object
       properties:
@@ -491,11 +508,14 @@ components:
       - type
       - createdDate
       - lastUpdatedDate
-    MergeVariableType:
-      type: string
-      enum:
-      - library
-      - project
+    MergeVariable:
+      oneOf:
+      - title: Library Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableLibrary'
+      - title: Project Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableProject'
     MergeVariableProjectValuesMap:
       description: A map from Merge Variable names to values
       type: object
@@ -533,14 +553,6 @@ components:
       - description
       - type
       - changeDate
-    MergeVariable:
-      oneOf:
-      - title: Library Variable
-        allOf:
-        - $ref: '#/components/schemas/MergeVariableLibrary'
-      - title: Project Variable
-        allOf:
-        - $ref: '#/components/schemas/MergeVariableProject'
     MergeVariableWide:
       allOf:
       - $ref: '#/components/schemas/MergeVariable'
@@ -557,23 +569,11 @@ components:
             - libraryEntries
         required:
         - usages
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
+    MergeVariableType:
+      type: string
+      enum:
+      - library
+      - project
   responses:
     '422':
       description: Unprocessable Request
@@ -585,15 +585,44 @@ components:
             name: UNPROCESSABLE_REQUEST
             message: Unable to process request
             debugId: 0fas3
-    '400':
-      description: Invalid Request
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    AsyncTaskAccepted:
+      description: RECEIVED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: integer
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             name: INVALID_REQUEST
-            message: Bad request
+            message: Invalid JSON-Patch document
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
             debugId: 0fas3
     UnprocessableJSONPatchRequest:
       description: Unprocessable Request
@@ -605,15 +634,15 @@ components:
             name: UNPROCESSABLE_REQUEST
             message: Invalid operation on path /some/path
             debugId: 0fas3
-    '404':
-      description: Resource Not Found
+    '400':
+      description: Invalid Request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
+            name: INVALID_REQUEST
+            message: Bad request
             debugId: 0fas3
     AsyncTaskStatusResponse:
       description: Typical status response of an asynchronous task
@@ -644,35 +673,6 @@ components:
               value:
                 status: COMPLETE
                 result: Task completed successfully
-    AsyncTaskAccepted:
-      description: RECEIVED
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              taskId:
-                type: integer
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
-    InvalidJSONPatchDocument:
-      description: Invalid JSON-Patch document
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Invalid JSON-Patch document
-            debugId: 0fas3
   securitySchemes:
     loopio_auth:
       type: oauth2

@@ -80,16 +80,6 @@ paths:
         - project:read
 components:
   parameters:
-    PageSize:
-      name: pageSize
-      in: query
-      description: The numbers of items to return
-      schema:
-        type: integer
-        minimum: 1
-        example: 10
-        default: 10
-      required: false
     Page:
       name: page
       in: query
@@ -100,22 +90,17 @@ components:
         example: 5
         default: 1
       required: false
+    PageSize:
+      name: pageSize
+      in: query
+      description: The numbers of items to return
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+        default: 10
+      required: false
   schemas:
-    ProjectTemplate:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        description:
-          type: string
-        status:
-          type: string
-          enum:
-          - ACTIVE
-          - DONE
-          - DELETED
     Error:
       type: object
       properties:
@@ -133,6 +118,21 @@ components:
           type: string
         debugId:
           type: string
+    ProjectTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - DONE
+          - DELETED
   responses:
     '403':
       description: No Permission

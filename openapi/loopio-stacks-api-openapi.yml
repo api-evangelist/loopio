@@ -60,6 +60,23 @@ paths:
         - library:read
 components:
   schemas:
+    Stack:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Stack Id
+        name:
+          type: string
+          description: Stack name
+        categories:
+          type: array
+          description: List of linked Categories
+          items:
+            $ref: '#/components/schemas/Category'
+      example:
+        id: 3
+        name: Internal Operations
     Category:
       type: object
       properties:
@@ -81,23 +98,6 @@ components:
         id: 5
         stackID: 3
         name: Engineering
-    Stack:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Stack Id
-        name:
-          type: string
-          description: Stack name
-        categories:
-          type: array
-          description: List of linked Categories
-          items:
-            $ref: '#/components/schemas/Category'
-      example:
-        id: 3
-        name: Internal Operations
     SubCategory:
       type: object
       properties:

@@ -91,6 +91,24 @@ components:
           type: string
         debugId:
           type: string
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Team Id
+        name:
+          type: string
+          description: Team name
+        description:
+          type:
+          - string
+          - 'null'
+          description: Description
+      example:
+        id: 3
+        name: Engineers
+        description: Employees in the Engineering Department
     TeamUser:
       type: object
       properties:
@@ -127,35 +145,7 @@ components:
         name:
           type: string
           example: name
-    Team:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Team Id
-        name:
-          type: string
-          description: Team name
-        description:
-          type:
-          - string
-          - 'null'
-          description: Description
-      example:
-        id: 3
-        name: Engineers
-        description: Employees in the Engineering Department
   responses:
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
     '400':
       description: Invalid Request
       content:
@@ -165,6 +155,16 @@ components:
           example:
             name: INVALID_REQUEST
             message: Bad request
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
             debugId: 0fas3
     '403':
       description: No Permission

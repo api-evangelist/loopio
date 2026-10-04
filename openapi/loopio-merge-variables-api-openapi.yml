@@ -427,6 +427,23 @@ paths:
         - mergeVariable:write
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
     MergeVariableLibrary:
       type: object
       properties:
@@ -461,23 +478,72 @@ components:
       - type
       - createdDate
       - lastUpdatedDate
-    Error:
+    MergeVariableType:
+      type: string
+      enum:
+      - library
+      - project
+    MergeVariableChange:
       type: object
       properties:
         name:
           type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
+          maxLength: 64
+        value:
+          description: excluded if type is "project"
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+        description:
           type: string
-        debugId:
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/MergeVariableType'
+        changeDate:
           type: string
+          format: date-time
+      required:
+      - name
+      - description
+      - type
+      - changeDate
+    MergeVariable:
+      oneOf:
+      - title: Library Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableLibrary'
+      - title: Project Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableProject'
+    MergeVariableProjectValuesMap:
+      description: A map from Merge Variable names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Merge Variable name | not ''Client Name''}'
+        type:
+        - string
+        - 'null'
+        maxLength: 128
+      example:
+        Deal Size: $100000000000000
+        Uninitialized variable: null
+    MergeVariableWide:
+      allOf:
+      - $ref: '#/components/schemas/MergeVariable'
+      - properties:
+          usages:
+            type: object
+            properties:
+              libraryEntries:
+                description: Ids of Library Entries that use this Variable
+                type: array
+                items:
+                  type: integer
+            required:
+            - libraryEntries
+        required:
+        - usages
     MergeVariableProject:
       type: object
       properties:
@@ -508,102 +574,7 @@ components:
       - type
       - createdDate
       - lastUpdatedDate
-    MergeVariable:
-      oneOf:
-      - title: Library Variable
-        allOf:
-        - $ref: '#/components/schemas/MergeVariableLibrary'
-      - title: Project Variable
-        allOf:
-        - $ref: '#/components/schemas/MergeVariableProject'
-    MergeVariableProjectValuesMap:
-      description: A map from Merge Variable names to values
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Merge Variable name | not ''Client Name''}'
-        type:
-        - string
-        - 'null'
-        maxLength: 128
-      example:
-        Deal Size: $100000000000000
-        Uninitialized variable: null
-    MergeVariableChange:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 64
-        value:
-          description: excluded if type is "project"
-          type:
-          - string
-          - 'null'
-          maxLength: 255
-        description:
-          type: string
-          maxLength: 100
-        type:
-          $ref: '#/components/schemas/MergeVariableType'
-        changeDate:
-          type: string
-          format: date-time
-      required:
-      - name
-      - description
-      - type
-      - changeDate
-    MergeVariableWide:
-      allOf:
-      - $ref: '#/components/schemas/MergeVariable'
-      - properties:
-          usages:
-            type: object
-            properties:
-              libraryEntries:
-                description: Ids of Library Entries that use this Variable
-                type: array
-                items:
-                  type: integer
-            required:
-            - libraryEntries
-        required:
-        - usages
-    MergeVariableType:
-      type: string
-      enum:
-      - library
-      - project
   responses:
-    '422':
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Unable to process request
-            debugId: 0fas3
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
-    AsyncTaskAccepted:
-      description: RECEIVED
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              taskId:
-                type: integer
     InvalidJSONPatchDocument:
       description: Invalid JSON-Patch document
       content:
@@ -614,26 +585,15 @@ components:
             name: INVALID_REQUEST
             message: Invalid JSON-Patch document
             debugId: 0fas3
-    '403':
-      description: No Permission
+    AsyncTaskAccepted:
+      description: RECEIVED
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
-    UnprocessableJSONPatchRequest:
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Invalid operation on path /some/path
-            debugId: 0fas3
+            type: object
+            properties:
+              taskId:
+                type: integer
     '400':
       description: Invalid Request
       content:
@@ -643,6 +603,16 @@ components:
           example:
             name: INVALID_REQUEST
             message: Bad request
+            debugId: 0fas3
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
             debugId: 0fas3
     AsyncTaskStatusResponse:
       description: Typical status response of an asynchronous task
@@ -673,6 +643,36 @@ components:
               value:
                 status: COMPLETE
                 result: Task completed successfully
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    UnprocessableJSONPatchRequest:
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Invalid operation on path /some/path
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
   securitySchemes:
     loopio_auth:
       type: oauth2

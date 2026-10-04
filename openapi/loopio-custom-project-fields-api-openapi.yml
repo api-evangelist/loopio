@@ -303,6 +303,90 @@ paths:
         - customProjectField:delete
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
+    CustomProjectFieldProjectSourceInput:
+      description: Custom Project Field with Project source input
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 40
+        instructions:
+          description: Instructions to the project owner about how this field is intended to be filled out
+          type: string
+          maxLength: 40
+        isRequired:
+          type: boolean
+          default: false
+        fieldType:
+          default: SHORT_TEXT
+          type: string
+          enum:
+          - DROPDOWN
+          - SHORT_TEXT
+          - DATE
+        dropdownValues:
+          description: Required when fieldType is DROPDOWN. Values for the dropdown options.
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          minLength: 1
+      required:
+      - name
+      - fieldType
+    CustomProjectFieldPatchValuesMap:
+      description: A map from Custom Project Field names to values for the patch endpoint request body
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type: string
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
+    CustomProjectField:
+      oneOf:
+      - title: Custom Project Field with Project Source input
+        allOf:
+        - $ref: '#/components/schemas/CustomProjectFieldResponse'
+      - title: Custom Project Field with Salesforce input
+        allOf:
+        - $ref: '#/components/schemas/CustomSalesforceInputField'
+      - title: Custom Project Field with MsDynamics input - IN DEVELOPMENT
+        allOf:
+        - $ref: '#/components/schemas/CustomMsDynamicsInputField'
+    CustomProjectFieldValuesMap:
+      description: A map from Custom Project Field names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type:
+        - string
+        - 'null'
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Uninitialized field: null
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
     CustomProjectFieldResponse:
       description: Custom Project Field Project Source Response
       type: object
@@ -336,123 +420,6 @@ components:
           items:
             type: string
           minItems: 1
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
-    CustomProjectFieldInputSource:
-      type: string
-      enum:
-      - project
-      - salesforce
-      - msDynamics
-    CustomProjectFieldValuesMap:
-      description: A map from Custom Project Field names to values
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Custom Project Field name}'
-        type:
-        - string
-        - 'null'
-        maxLength: 100
-      example:
-        Opportunity Url: https://example.com/CRM/opportunity/abc123
-        Uninitialized field: null
-        Amount: '1000'
-        Completed Date: '2026-04-06T15:30:45+05:30'
-    CustomSalesforceInputField:
-      description: Custom Project Input Fields with Salesforce sources are available with a connected Salesforce integration
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-          maxLength: 40
-        source:
-          type: string
-          enum:
-          - salesforce
-        salesforceField:
-          description: The value from Salesforce that populates this Custom Project Field
-          type: object
-          properties:
-            source:
-              type: string
-              enum:
-              - Account
-              - Opportunity
-            name:
-              type: string
-        instructions:
-          type: string
-          maxLength: 40
-    CustomProjectFieldPatchValuesMap:
-      description: A map from Custom Project Field names to values for the patch endpoint request body
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Custom Project Field name}'
-        type: string
-        maxLength: 100
-      example:
-        Opportunity Url: https://example.com/CRM/opportunity/abc123
-        Amount: '1000'
-        Completed Date: '2026-04-06T15:30:45+05:30'
-    CustomProjectField:
-      oneOf:
-      - title: Custom Project Field with Project Source input
-        allOf:
-        - $ref: '#/components/schemas/CustomProjectFieldResponse'
-      - title: Custom Project Field with Salesforce input
-        allOf:
-        - $ref: '#/components/schemas/CustomSalesforceInputField'
-      - title: Custom Project Field with MsDynamics input - IN DEVELOPMENT
-        allOf:
-        - $ref: '#/components/schemas/CustomMsDynamicsInputField'
-    CustomProjectFieldProjectSourceInput:
-      description: Custom Project Field with Project source input
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 40
-        instructions:
-          description: Instructions to the project owner about how this field is intended to be filled out
-          type: string
-          maxLength: 40
-        isRequired:
-          type: boolean
-          default: false
-        fieldType:
-          default: SHORT_TEXT
-          type: string
-          enum:
-          - DROPDOWN
-          - SHORT_TEXT
-          - DATE
-        dropdownValues:
-          description: Required when fieldType is DROPDOWN. Values for the dropdown options.
-          type: array
-          items:
-            type: string
-          uniqueItems: true
-          minLength: 1
-      required:
-      - name
-      - fieldType
     CustomMsDynamicsInputField:
       description: Custom Project Input Fields with MsDynamics sources are available with a connected MsDynamics integration
       type: object
@@ -489,18 +456,59 @@ components:
         instructions:
           type: string
           maxLength: 40
+    CustomSalesforceInputField:
+      description: Custom Project Input Fields with Salesforce sources are available with a connected Salesforce integration
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 40
+        source:
+          type: string
+          enum:
+          - salesforce
+        salesforceField:
+          description: The value from Salesforce that populates this Custom Project Field
+          type: object
+          properties:
+            source:
+              type: string
+              enum:
+              - Account
+              - Opportunity
+            name:
+              type: string
+        instructions:
+          type: string
+          maxLength: 40
+    CustomProjectFieldInputSource:
+      type: string
+      enum:
+      - project
+      - salesforce
+      - msDynamics
   responses:
-    '204':
-      description: No Content
-    '404':
-      description: Resource Not Found
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
+            debugId: 0fas3
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
             debugId: 0fas3
     '422':
       description: Unprocessable Request
@@ -512,16 +520,8 @@ components:
             name: UNPROCESSABLE_REQUEST
             message: Unable to process request
             debugId: 0fas3
-    InvalidJSONPatchDocument:
-      description: Invalid JSON-Patch document
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Invalid JSON-Patch document
-            debugId: 0fas3
+    '204':
+      description: No Content
     UnprocessableJSONPatchRequest:
       description: Unprocessable Request
       content:
@@ -532,15 +532,15 @@ components:
             name: UNPROCESSABLE_REQUEST
             message: Invalid operation on path /some/path
             debugId: 0fas3
-    '400':
-      description: Invalid Request
+    '404':
+      description: Resource Not Found
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            name: INVALID_REQUEST
-            message: Bad request
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
             debugId: 0fas3
     '403':
       description: No Permission

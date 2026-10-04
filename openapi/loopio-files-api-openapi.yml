@@ -143,6 +143,23 @@ paths:
         - project:read
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - FATAL_ERROR
+          - FORBIDDEN
+          - INVALID_REQUEST
+          - NO_PERMISSION
+          - RESOURCE_NOT_FOUND
+          - UNPROCESSABLE_REQUEST
+          - VALIDATION_ERROR
+        message:
+          type: string
+        debugId:
+          type: string
     File:
       type: object
       properties:
@@ -187,23 +204,6 @@ components:
       - filename
       - status
       - size
-    Error:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-          - FATAL_ERROR
-          - FORBIDDEN
-          - INVALID_REQUEST
-          - NO_PERMISSION
-          - RESOURCE_NOT_FOUND
-          - UNPROCESSABLE_REQUEST
-          - VALIDATION_ERROR
-        message:
-          type: string
-        debugId:
-          type: string
     ReferenceLabel:
       type: object
       properties:
@@ -224,18 +224,6 @@ components:
         required:
         - isImportDocument
   responses:
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
-    '204':
-      description: No Content
     '400':
       description: Invalid Request
       content:
@@ -245,6 +233,18 @@ components:
           example:
             name: INVALID_REQUEST
             message: Bad request
+            debugId: 0fas3
+    '204':
+      description: No Content
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
             debugId: 0fas3
     '403':
       description: No Permission

@@ -1,0 +1,49 @@
+slug: loopio
+provider: Loopio
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 3
+edges:
+- tag: Library Entries
+  spec_file: loopio-library-entries-api-openapi.yml
+  capability_id: BC-830
+  capability_id_l1: BC-830
+  capability_name: Knowledge Management
+  confidence: 0.7
+  evidence: GET /libraryEntries  listLibraryEntries; schemas Question, Answer, LibraryEntryHistory, LibraryEntryOwner
+    — "a governed, reusable content Library"
+  reason: Full lifecycle management of curated, owned, versioned question/answer content reused to respond
+    to RFPs and questionnaires — organisational knowledge capture and curation. L1 only as the surface
+    spans both capture and curation; an alternative reading (customer security questionnaire response
+    management) keeps confidence below 0.8.
+- tag: Users
+  spec_file: loopio-users-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: POST /users  createUser  Create a User; POST /users/bulk/disableByEmail  Bulk disable Users
+    by email; POST /users/bulk/assignRole  Bulk assign a Role to Users
+  reason: Full user account lifecycle — create, update, bulk disable, activation email resend, role and
+    team assignment — which is joiner-mover-leaver identity and access administration for the tenant.
+    Clearly IAM rather than any HR capability, as no employment data is involved.
+- tag: Webhooks
+  spec_file: loopio-webhooks-api-openapi.yml
+  capability_id: BC-4270.80
+  capability_id_l1: BC-4270
+  capability_name: Webhook & Event Subscription Management
+  confidence: 0.7
+  evidence: POST /webhookSubscriptions  createWebhookSubscription  Create a new event subscription (new
+    webhook); POST /webhookSubscriptions/{subscriptionId}/signingSecret  Refresh a webhook's signing secret
+  reason: Vendor's public API exposes lifecycle management of outbound event subscriptions and their signing
+    secrets, which is exactly the Webhook & Event Subscription Management capability in this frame. Normally
+    plumbing, but the frame names it explicitly.

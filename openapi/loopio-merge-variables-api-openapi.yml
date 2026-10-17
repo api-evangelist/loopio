@@ -478,11 +478,6 @@ components:
       - type
       - createdDate
       - lastUpdatedDate
-    MergeVariableType:
-      type: string
-      enum:
-      - library
-      - project
     MergeVariableChange:
       type: object
       properties:
@@ -508,42 +503,6 @@ components:
       - description
       - type
       - changeDate
-    MergeVariable:
-      oneOf:
-      - title: Library Variable
-        allOf:
-        - $ref: '#/components/schemas/MergeVariableLibrary'
-      - title: Project Variable
-        allOf:
-        - $ref: '#/components/schemas/MergeVariableProject'
-    MergeVariableProjectValuesMap:
-      description: A map from Merge Variable names to values
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Merge Variable name | not ''Client Name''}'
-        type:
-        - string
-        - 'null'
-        maxLength: 128
-      example:
-        Deal Size: $100000000000000
-        Uninitialized variable: null
-    MergeVariableWide:
-      allOf:
-      - $ref: '#/components/schemas/MergeVariable'
-      - properties:
-          usages:
-            type: object
-            properties:
-              libraryEntries:
-                description: Ids of Library Entries that use this Variable
-                type: array
-                items:
-                  type: integer
-            required:
-            - libraryEntries
-        required:
-        - usages
     MergeVariableProject:
       type: object
       properties:
@@ -574,26 +533,48 @@ components:
       - type
       - createdDate
       - lastUpdatedDate
-  responses:
-    InvalidJSONPatchDocument:
-      description: Invalid JSON-Patch document
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Invalid JSON-Patch document
-            debugId: 0fas3
-    AsyncTaskAccepted:
-      description: RECEIVED
-      content:
-        application/json:
-          schema:
+    MergeVariableWide:
+      allOf:
+      - $ref: '#/components/schemas/MergeVariable'
+      - properties:
+          usages:
             type: object
             properties:
-              taskId:
-                type: integer
+              libraryEntries:
+                description: Ids of Library Entries that use this Variable
+                type: array
+                items:
+                  type: integer
+            required:
+            - libraryEntries
+        required:
+        - usages
+    MergeVariableType:
+      type: string
+      enum:
+      - library
+      - project
+    MergeVariable:
+      oneOf:
+      - title: Library Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableLibrary'
+      - title: Project Variable
+        allOf:
+        - $ref: '#/components/schemas/MergeVariableProject'
+    MergeVariableProjectValuesMap:
+      description: A map from Merge Variable names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Merge Variable name | not ''Client Name''}'
+        type:
+        - string
+        - 'null'
+        maxLength: 128
+      example:
+        Deal Size: $100000000000000
+        Uninitialized variable: null
+  responses:
     '400':
       description: Invalid Request
       content:
@@ -603,16 +584,6 @@ components:
           example:
             name: INVALID_REQUEST
             message: Bad request
-            debugId: 0fas3
-    '422':
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Unable to process request
             debugId: 0fas3
     AsyncTaskStatusResponse:
       description: Typical status response of an asynchronous task
@@ -663,6 +634,25 @@ components:
             name: UNPROCESSABLE_REQUEST
             message: Invalid operation on path /some/path
             debugId: 0fas3
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
+    AsyncTaskAccepted:
+      description: RECEIVED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: integer
     '403':
       description: No Permission
       content:
@@ -672,6 +662,16 @@ components:
           example:
             name: NO_PERMISSION
             message: No permission to access the resource
+            debugId: 0fas3
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
             debugId: 0fas3
   securitySchemes:
     loopio_auth:

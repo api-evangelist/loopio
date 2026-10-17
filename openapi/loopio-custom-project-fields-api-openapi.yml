@@ -351,42 +351,6 @@ components:
       required:
       - name
       - fieldType
-    CustomProjectFieldPatchValuesMap:
-      description: A map from Custom Project Field names to values for the patch endpoint request body
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Custom Project Field name}'
-        type: string
-        maxLength: 100
-      example:
-        Opportunity Url: https://example.com/CRM/opportunity/abc123
-        Amount: '1000'
-        Completed Date: '2026-04-06T15:30:45+05:30'
-    CustomProjectField:
-      oneOf:
-      - title: Custom Project Field with Project Source input
-        allOf:
-        - $ref: '#/components/schemas/CustomProjectFieldResponse'
-      - title: Custom Project Field with Salesforce input
-        allOf:
-        - $ref: '#/components/schemas/CustomSalesforceInputField'
-      - title: Custom Project Field with MsDynamics input - IN DEVELOPMENT
-        allOf:
-        - $ref: '#/components/schemas/CustomMsDynamicsInputField'
-    CustomProjectFieldValuesMap:
-      description: A map from Custom Project Field names to values
-      type: object
-      additionalProperties:
-        x-additionalPropertiesName: '{Custom Project Field name}'
-        type:
-        - string
-        - 'null'
-        maxLength: 100
-      example:
-        Opportunity Url: https://example.com/CRM/opportunity/abc123
-        Uninitialized field: null
-        Amount: '1000'
-        Completed Date: '2026-04-06T15:30:45+05:30'
     CustomProjectFieldResponse:
       description: Custom Project Field Project Source Response
       type: object
@@ -420,6 +384,17 @@ components:
           items:
             type: string
           minItems: 1
+    CustomProjectFieldPatchValuesMap:
+      description: A map from Custom Project Field names to values for the patch endpoint request body
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type: string
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
     CustomMsDynamicsInputField:
       description: Custom Project Input Fields with MsDynamics sources are available with a connected MsDynamics integration
       type: object
@@ -456,6 +431,37 @@ components:
         instructions:
           type: string
           maxLength: 40
+    CustomProjectFieldValuesMap:
+      description: A map from Custom Project Field names to values
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: '{Custom Project Field name}'
+        type:
+        - string
+        - 'null'
+        maxLength: 100
+      example:
+        Opportunity Url: https://example.com/CRM/opportunity/abc123
+        Uninitialized field: null
+        Amount: '1000'
+        Completed Date: '2026-04-06T15:30:45+05:30'
+    CustomProjectField:
+      oneOf:
+      - title: Custom Project Field with Project Source input
+        allOf:
+        - $ref: '#/components/schemas/CustomProjectFieldResponse'
+      - title: Custom Project Field with Salesforce input
+        allOf:
+        - $ref: '#/components/schemas/CustomSalesforceInputField'
+      - title: Custom Project Field with MsDynamics input - IN DEVELOPMENT
+        allOf:
+        - $ref: '#/components/schemas/CustomMsDynamicsInputField'
+    CustomProjectFieldInputSource:
+      type: string
+      enum:
+      - project
+      - salesforce
+      - msDynamics
     CustomSalesforceInputField:
       description: Custom Project Input Fields with Salesforce sources are available with a connected Salesforce integration
       type: object
@@ -483,23 +489,7 @@ components:
         instructions:
           type: string
           maxLength: 40
-    CustomProjectFieldInputSource:
-      type: string
-      enum:
-      - project
-      - salesforce
-      - msDynamics
   responses:
-    InvalidJSONPatchDocument:
-      description: Invalid JSON-Patch document
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Invalid JSON-Patch document
-            debugId: 0fas3
     '400':
       description: Invalid Request
       content:
@@ -509,6 +499,26 @@ components:
           example:
             name: INVALID_REQUEST
             message: Bad request
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    UnprocessableJSONPatchRequest:
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Invalid operation on path /some/path
             debugId: 0fas3
     '422':
       description: Unprocessable Request
@@ -522,26 +532,6 @@ components:
             debugId: 0fas3
     '204':
       description: No Content
-    UnprocessableJSONPatchRequest:
-      description: Unprocessable Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: UNPROCESSABLE_REQUEST
-            message: Invalid operation on path /some/path
-            debugId: 0fas3
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
     '403':
       description: No Permission
       content:
@@ -551,6 +541,16 @@ components:
           example:
             name: NO_PERMISSION
             message: No permission to access the resource
+            debugId: 0fas3
+    InvalidJSONPatchDocument:
+      description: Invalid JSON-Patch document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Invalid JSON-Patch document
             debugId: 0fas3
   securitySchemes:
     loopio_auth:

@@ -263,13 +263,40 @@ components:
       - events
       - status
       - creator
+  responses:
+    '400':
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: INVALID_REQUEST
+            message: Bad request
+            debugId: 0fas3
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: RESOURCE_NOT_FOUND
+            message: Resource not found
+            debugId: 0fas3
+    '204':
+      description: No Content
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
+            debugId: 0fas3
   parameters:
-    SubscriptionId:
-      name: subscriptionId
-      in: path
-      required: true
-      schema:
-        type: integer
     WebhookContentSignature:
       in: header
       name: X-Loopio-Content-Signature
@@ -277,6 +304,12 @@ components:
       schema:
         type: string
       required: true
+    SubscriptionId:
+      name: subscriptionId
+      in: path
+      required: true
+      schema:
+        type: integer
     WebhookTimestamp:
       in: header
       name: X-Loopio-Request-Timestamp
@@ -285,46 +318,6 @@ components:
         type: integer
       required: true
   callbacks:
-    ProjectStatusUpdated:
-      '{$request.body#/webhookUrl}':
-        post:
-          summary: Project Status Updated
-          description: Sent whenever a Project status has been updated
-          parameters:
-          - $ref: '#/components/parameters/WebhookContentSignature'
-          - $ref: '#/components/parameters/WebhookTimestamp'
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    event:
-                      type: string
-                      enum:
-                      - project.statusChanged
-                    context:
-                      type: object
-                      properties:
-                        projectId:
-                          type: number
-                        status:
-                          type: string
-                          enum:
-                          - ACTIVE
-                          - COMPLETE
-                          - DELETED
-                          - STOPPED
-                          - DONE
-                          - WON
-                          - LOST
-                  required:
-                  - event
-                  - payload
-          responses:
-            '200':
-              description: OK
     ProjectCreated:
       '{$request.body#/webhookUrl}':
         post:
@@ -457,39 +450,46 @@ components:
           responses:
             '200':
               description: OK
-  responses:
-    '400':
-      description: Invalid Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: INVALID_REQUEST
-            message: Bad request
-            debugId: 0fas3
-    '204':
-      description: No Content
-    '404':
-      description: Resource Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: RESOURCE_NOT_FOUND
-            message: Resource not found
-            debugId: 0fas3
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
+    ProjectStatusUpdated:
+      '{$request.body#/webhookUrl}':
+        post:
+          summary: Project Status Updated
+          description: Sent whenever a Project status has been updated
+          parameters:
+          - $ref: '#/components/parameters/WebhookContentSignature'
+          - $ref: '#/components/parameters/WebhookTimestamp'
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    event:
+                      type: string
+                      enum:
+                      - project.statusChanged
+                    context:
+                      type: object
+                      properties:
+                        projectId:
+                          type: number
+                        status:
+                          type: string
+                          enum:
+                          - ACTIVE
+                          - COMPLETE
+                          - DELETED
+                          - STOPPED
+                          - DONE
+                          - WON
+                          - LOST
+                  required:
+                  - event
+                  - payload
+          responses:
+            '200':
+              description: OK
   securitySchemes:
     loopio_auth:
       type: oauth2

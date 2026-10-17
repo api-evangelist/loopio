@@ -108,16 +108,6 @@ components:
         name: Administrator
         type: Full Access
   responses:
-    '403':
-      description: No Permission
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: NO_PERMISSION
-            message: No permission to access the resource
-            debugId: 0fas3
     '404':
       description: Resource Not Found
       content:
@@ -127,6 +117,16 @@ components:
           example:
             name: RESOURCE_NOT_FOUND
             message: Resource not found
+            debugId: 0fas3
+    '403':
+      description: No Permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: NO_PERMISSION
+            message: No permission to access the resource
             debugId: 0fas3
   securitySchemes:
     loopio_auth:

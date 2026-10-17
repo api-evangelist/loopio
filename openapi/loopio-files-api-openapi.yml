@@ -160,6 +160,25 @@ components:
           type: string
         debugId:
           type: string
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+    ProjectSourceFile:
+      allOf:
+      - $ref: '#/components/schemas/File'
+      - type: object
+        properties:
+          isImportDocument:
+            type: boolean
+            default: false
+        required:
+        - isImportDocument
     File:
       type: object
       properties:
@@ -204,25 +223,6 @@ components:
       - filename
       - status
       - size
-    ReferenceLabel:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: name
-    ProjectSourceFile:
-      allOf:
-      - $ref: '#/components/schemas/File'
-      - type: object
-        properties:
-          isImportDocument:
-            type: boolean
-            default: false
-        required:
-        - isImportDocument
   responses:
     '400':
       description: Invalid Request
@@ -234,8 +234,6 @@ components:
             name: INVALID_REQUEST
             message: Bad request
             debugId: 0fas3
-    '204':
-      description: No Content
     '404':
       description: Resource Not Found
       content:
@@ -246,6 +244,8 @@ components:
             name: RESOURCE_NOT_FOUND
             message: Resource not found
             debugId: 0fas3
+    '204':
+      description: No Content
     '403':
       description: No Permission
       content:

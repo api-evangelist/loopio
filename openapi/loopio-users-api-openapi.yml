@@ -806,42 +806,6 @@ components:
           example:
           - 100
           - 200
-    UserStatus:
-      type: string
-      enum:
-      - ENABLED
-      - DISABLED
-      - PENDING
-      - LOCKED
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: User ID
-          example: 111
-        firstName:
-          type: string
-          description: User's first name
-          example: Jane
-        lastName:
-          type: string
-          description: User's last name
-          example: Doe
-        email:
-          type: string
-          description: User's email
-          example: jane.doe@example.com
-        status:
-          $ref: '#/components/schemas/UserStatus'
-        guid:
-          type: string
-          description: User's generated unique ID
-          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
-        roleId:
-          type: integer
-          description: ID of the User's Role
-          example: 222
     IdentifyingUserData:
       type: object
       properties:
@@ -891,6 +855,42 @@ components:
       - subdomain
       - tier
       - activeTimezone
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+          example: 111
+        firstName:
+          type: string
+          description: User's first name
+          example: Jane
+        lastName:
+          type: string
+          description: User's last name
+          example: Doe
+        email:
+          type: string
+          description: User's email
+          example: jane.doe@example.com
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        guid:
+          type: string
+          description: User's generated unique ID
+          example: 2e7a3fd2928111e3adb1a5bcbc7a2f7b
+        roleId:
+          type: integer
+          description: ID of the User's Role
+          example: 222
+    UserStatus:
+      type: string
+      enum:
+      - ENABLED
+      - DISABLED
+      - PENDING
+      - LOCKED
   responses:
     '400':
       description: Invalid Request
@@ -902,15 +902,15 @@ components:
             name: INVALID_REQUEST
             message: Bad request
             debugId: 0fas3
-    '422':
-      description: Unprocessable Request
+    '500':
+      description: Fatal Error
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            name: UNPROCESSABLE_REQUEST
-            message: Unable to process request
+            name: FATAL_ERROR
+            message: Something went wrong
             debugId: 0fas3
     '404':
       description: Resource Not Found
@@ -922,6 +922,16 @@ components:
             name: RESOURCE_NOT_FOUND
             message: Resource not found
             debugId: 0fas3
+    '422':
+      description: Unprocessable Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            name: UNPROCESSABLE_REQUEST
+            message: Unable to process request
+            debugId: 0fas3
     '403':
       description: No Permission
       content:
@@ -931,16 +941,6 @@ components:
           example:
             name: NO_PERMISSION
             message: No permission to access the resource
-            debugId: 0fas3
-    '500':
-      description: Fatal Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            name: FATAL_ERROR
-            message: Something went wrong
             debugId: 0fas3
   parameters:
     PageSize:

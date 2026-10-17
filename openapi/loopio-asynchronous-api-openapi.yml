@@ -309,6 +309,15 @@ components:
       - questions
       - answer
       - location
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
     LanguageCode:
       type: string
       default: en
@@ -319,15 +328,6 @@ components:
       - fr
       - pt
       - other
-    ReferenceLabel:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: name
     Project:
       type: object
       properties:
@@ -372,15 +372,6 @@ components:
         description:
           type: string
   responses:
-    AsyncTaskAccepted:
-      description: RECEIVED
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              taskId:
-                type: integer
     '400':
       description: Invalid Request
       content:
@@ -430,6 +421,15 @@ components:
             name: RESOURCE_NOT_FOUND
             message: Resource not found
             debugId: 0fas3
+    AsyncTaskAccepted:
+      description: RECEIVED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: integer
     '403':
       description: No Permission
       content:

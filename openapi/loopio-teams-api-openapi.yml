@@ -91,6 +91,15 @@ components:
           type: string
         debugId:
           type: string
+    ReferenceLabel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
     Team:
       type: object
       properties:
@@ -136,15 +145,6 @@ components:
           name: User 1
         - id: 2
           name: User 2
-    ReferenceLabel:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: name
   responses:
     '400':
       description: Invalid Request

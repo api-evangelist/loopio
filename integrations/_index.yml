@@ -27,7 +27,7 @@
     - connectors/applications/loopio
     vendor_link: https://www.loopio.com/
     builder: Fivetran
-  status: pending-generation
+  status: not-a-workflow
   arazzo: null
 - slug: loopio-microsoft-teams-own
   label: Microsoft Teams (own)

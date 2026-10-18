@@ -13,7 +13,7 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 4
+edge_count: 6
 edges:
 - tag: Projects
   spec_file: loopio-projects-api-openapi.yml
@@ -30,6 +30,17 @@ edges:
     explicitly RFP response.
 - tag: Library Entries
   spec_file: loopio-library-entries-api-openapi.yml
+  capability_id: BC-1750.40
+  capability_id_l1: BC-1750
+  capability_name: Defense Proposal Management
+  confidence: 0.72
+  evidence: '''POST /libraryEntries createLibraryEntry''; vendor: ''answer RFPs, RFIs, DDQs, and security
+    questionnaires from a governed, reusable content Library''; schemas Question, Answer, LibraryEntryHistory'
+  reason: Core surface manages the governed reusable Q&A content used to author RFP/questionnaire responses
+    — proposal content authoring and reuse. Within this frame that is Defense Proposal Management; discount
+    for the fact that the capability is industry-agnostic response management.
+- tag: Library Entries
+  spec_file: loopio-library-entries-api-openapi.yml
   capability_id: BC-830
   capability_id_l1: BC-830
   capability_name: Knowledge Management
@@ -40,6 +51,17 @@ edges:
     to RFPs and questionnaires — organisational knowledge capture and curation. L1 only as the surface
     spans both capture and curation; an alternative reading (customer security questionnaire response
     management) keeps confidence below 0.8.
+- tag: Library Entries
+  spec_file: loopio-library-entries-api-openapi.yml
+  capability_id: BC-4370
+  capability_id_l1: BC-4370
+  capability_name: Professional Practice Knowledge Management
+  confidence: 0.7
+  evidence: GET /libraryEntries "List Library Entries you can interact with"; GET /libraryEntryHistories/{libraryEntryId}
+    "Get history of a Library Entry"; schemas LibraryEntry, LibraryEntryOwner, Question, Answer
+  reason: Curation, ownership, versioning/history and search of a governed reusable content library of
+    questions and answers used to produce RFP/DDQ responses — reusable practice knowledge assets. Uncertain
+    which L2 (template curation vs asset reuse), so only the L1 is asserted.
 - tag: Users
   spec_file: loopio-users-api-openapi.yml
   capability_id: BC-620.20

@@ -3,6 +3,8 @@ provider: Loopio
 generated_by: planning/capability-mapping/scripts/classify_capabilities.py
 model: claude-opus-5
 frame:
+- Defense & Aerospace
+- Professional Services
 - Software & Technology
 min_confidence: 0.7
 capability_model:
@@ -11,8 +13,21 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 3
+edge_count: 4
 edges:
+- tag: Projects
+  spec_file: loopio-projects-api-openapi.yml
+  capability_id: BC-4360.30
+  capability_id_l1: BC-4360
+  capability_name: Proposal Development Management
+  confidence: 0.8
+  evidence: 'Loopio is a response management platform used by teams to answer RFPs, RFIs, DDQs, and security
+    questionnaires; operations: ''Create a project'', ''Get a Project''s data'', ''Get the Compliance
+    Sets for a Project'''
+  reason: A Loopio 'Project' is an RFP/RFI/questionnaire response project — the container for drafting
+    and submitting a proposal response. This maps to Proposal Development Management within Practice Pursuit
+    and Proposal Management. Some ambiguity vs. generic project management, but the vendor context is
+    explicitly RFP response.
 - tag: Library Entries
   spec_file: loopio-library-entries-api-openapi.yml
   capability_id: BC-830

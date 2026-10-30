@@ -64,5 +64,144 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Loopio is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://www.hiive.com/securities/loopio-stock
+Loopio is a Toronto-based response management platform used by teams to answer RFPs, RFIs, DDQs, and security questionnaires from a governed, reusable content Library. It publishes a public REST API — the Loopio Public API v2 at https://api.loopio.com/data/v2 — documented on a Stoplight developer portal at developer.loopio.com, with a 96-operation OpenAPI 3.0.1 contract covering Library Entries, Projects, Project Entries, Sections and subSections, Custom Project Fields, Merge Variables, Compliance Sets, Project Templates, Stacks, Tags, Teams, Users, Roles, Files, CRM opportunity links, asynchronous task status, and webhook subscriptions. Authentication is OAuth 2.0 client credentials against https://api.loopio.com/oauth2/access_token with 22 in-spec scopes, and the authorization server publishes RFC 8414 and RFC 9728 discovery documents that advertise a wider 51-scope surface including SCIM user/group provisioning and MCP tool/prompt/resource scopes.
+
+**Areas:** Company · RFP · Proposals · Response Management · Content Library · Sales Enablement · Questionnaire · Compliance · Collaboration · Documents · Webhook · Software-as-a-Service
+
+## Loopio on APIs.io
+
+Everything profiled for Loopio is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/loopio/](https://apis.io/providers/loopio/)** — or go straight to one of the APIs or properties below.
+
+### APIs (15)
+
+- [Loopio Asynchronous API](https://apis.io/apis/loopio/loopio-asynchronous-api/) — An asynchronous endpoint
+- [Loopio CRM API](https://apis.io/apis/loopio/loopio-crm-api/) — The CRM API from Loopio — 2 operation(s) for crm.
+- [Loopio Custom Project Fields API](https://apis.io/apis/loopio/loopio-custom-project-fields-api/) — Create and manage Custom Project Fields
+- [Loopio Customers API](https://apis.io/apis/loopio/loopio-customers-api/) — Get information about Customer instances
+- [Loopio Files API](https://apis.io/apis/loopio/loopio-files-api/) — Manage Loopio files
+- [Loopio Library Entries API](https://apis.io/apis/loopio/loopio-library-entries-api/) — Create and manage Library Entries
+- [Loopio Merge Variables API](https://apis.io/apis/loopio/loopio-merge-variables-api/) — Reusable Library/Project-wide variables
+- [Loopio Project Templates API](https://apis.io/apis/loopio/loopio-project-templates-api/) — Get Information about Project Templates
+- [Loopio Projects API](https://apis.io/apis/loopio/loopio-projects-api/) — Create and manage Projects
+- [Loopio Roles API](https://apis.io/apis/loopio/loopio-roles-api/) — The Roles API from Loopio — 2 operation(s) for roles.
+- [Loopio Stacks API](https://apis.io/apis/loopio/loopio-stacks-api/) — View accessible stacks or Library structure
+- [Loopio Tags API](https://apis.io/apis/loopio/loopio-tags-api/) — Create and manage Tags
+- [Loopio Teams API](https://apis.io/apis/loopio/loopio-teams-api/) — Get Information about Teams
+- [Loopio Users API](https://apis.io/apis/loopio/loopio-users-api/) — Create and manage Users
+- [Loopio Webhooks API](https://apis.io/apis/loopio/loopio-webhooks-api/) — Create & Manage webhook subscriptions
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Loopio Events Webhooks](https://apis.io/asyncapis/loopio/loopio-events-webhooks/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [loopio-mcp.yml](https://apis.io/servers/loopio/loopio-mcp-yml/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Loopio Openapi Overlay](https://apis.io/overlays/loopio/loopio-openapi-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Loopio Authentication](https://apis.io/security/loopio/loopio-authentication/)
+- [Loopio Domain Security](https://apis.io/security/loopio/loopio-domain-security/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Loopio Scopes](https://apis.io/scopes/loopio/loopio-scopes/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Loopio Plans Pricing](https://apis.io/plans/loopio/loopio-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Loopio Rate Limits](https://apis.io/rate-limits/loopio/loopio-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://loopio.com/)
+- [Documentation](https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api)
+- [Getting started](https://developer.loopio.com/docs/loopio-api/c56ffe1fdae3e-getting-started-with-the-loopio-api)
+- [API reference](https://developer.loopio.com/docs/loopio-api/68a341c676710-loopio)
+- [Pricing](https://loopio.com/pricing/)
+- [Support](https://support.loopio.com/hc/en-us)
+- [Blog](https://loopio.com/blog/)
+- [Compliance](https://loopio.com/legal/compliance-statement/)
+- [Terms of service](https://loopio.com/legal/)
+- [Privacy policy](https://loopio.com/legal/privacy/)
+- [Status](https://www.loopiostatus.com/)
+
+## API Evangelist rating
+
+**Kin Score 30.2** — thin · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.1 |
+| Contract quality | 56.6 |
+| Contract governance | 18.2 |
+| Operational transparency | 23.7 |
+| Developer ergonomics | 18.5 |
+| Access clarity | 0.0 |
+
+**Agent readiness 47.9** — agent-ready (gated down from agent-native)
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | — |
+| Auth Clarity | served (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | yes |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | yes |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | verified |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 26.5** — Education & Research
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/loopio/](https://apis.io/providers/loopio/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Loopio: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/loopio/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
